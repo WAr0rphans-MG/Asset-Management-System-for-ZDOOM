@@ -1,7 +1,7 @@
 v0 - Button-Based System (Recreated)
 
 Overview
-The initial version built on Delashin's Smooth Doom Remake, implementing a basic medical symbol customization system. Users could switch between Standard Red, Green Cross, Pills, and Nightdive (DOOM 64) styles using keyconf button commands.
+The initial version built on Delashin's Smooth Doom Remake, implementing a basic medical symbol customization system. Users could switch between Classic Red Cross, the newer Green Cross and the BFG Edition Pills styles using keyconf button commands.
 Note: This version was recreated from memory and preserved fragments (KEYCONF, MENUDEF, CVARINFO). The DECORATE logic has been reconstructed based on known architectural constraints and is functionally accurate to the original implementation, though exact code may differ slightly from the original v0.
 
 Architecture
