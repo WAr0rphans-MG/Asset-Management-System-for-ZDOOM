@@ -1,0 +1,8 @@
+// Medikit sprite variant getter
+// Returns the current value of the "medtoggle" CVar
+// DECORATE actors call this to determine which sprite to display
+
+script "MEDOptions" (void)
+{
+    SetResultValue(GetUserCVar(0, "medtoggle"));
+}
