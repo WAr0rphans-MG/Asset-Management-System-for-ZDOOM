@@ -1,0 +1,51 @@
+v0 - Button-Based System (Recreated)
+
+Overview
+The initial version built on Delashin's Smooth Doom Remake, implementing a basic medical symbol customization system. Users could switch between Standard Red, Green Cross, Pills, and Nightdive (DOOM 64) styles using keyconf button commands.
+Note: This version was recreated from memory and preserved fragments (KEYCONF, MENUDEF, CVARINFO). The DECORATE logic has been reconstructed based on known architectural constraints and is functionally accurate to the original implementation, though exact code may differ slightly from the original v0.
+
+Architecture
+Stop-Based DECORATE
+Actors check CVars once on spawn, then stop at the selected sprite. This is simple and clean but has a critical limitation: changing CVars requires reloading the level to spawn new actors that check the updated values.
+Flow:
+Actor spawns
+Calls ACS getter script to check CVar value
+Jumps to appropriate state based on value
+Displays sprite with -1 duration (infinite)
+Stops - never checks again until level reload
+
+User Interface
+Preset buttons (KEYCONF aliases) set all three items at once
+Individual dropdowns (MENUDEF) allow custom combinations (e.g., green medikits + red stimpacks)
+Menu structure copied from base mod - didn't know about AddOptionMenu yet
+
+Components
+ACS: Simple getter scripts return CVar values to DECORATE
+
+DECORATE: Three replacement actors with conditional sprite selection
+
+KEYCONF: Preset button aliases
+
+MENUDEF: Custom submenu integrated into main options
+
+CVARINFO: Three user CVars (medtoggle, stmtoggle, brztoggle)
+
+Technical Details
+This explicitly calls custom sprites rather than relying on WAD defaults.
+
+Inherited Features from Base Mod
+64StylePickups toggle (DOOM 64 style variants)
+Berserk custom Pickup state (inheritance from base Berserk actor didn't work properly)
+
+What I Learned
+This version taught me the reload limitation of stop-based actors and sparked the need for real-time feedback, which drove the evolution toward looping logic in later versions.
+I also learned basic DECORATE state management and how to integrate custom CVars with menu systems by studying the base mod's implementation.
+
+Limitations
+❌ Level reload required to see changes
+❌ Stop-based actors can't respond to runtime CVar changes
+❌ Menu structure is a direct copy (not using cleaner AddOptionMenu method)
+❌ Limited to 4 preset options
+
+Credits
+Built on Delashin's Smooth Doom Remake - learned DECORATE patterns and CVar integration from this mod.
