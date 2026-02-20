@@ -1,0 +1,6 @@
+// Preset aliases for quick switching between medical symbol styles
+// These set all three CVars (medikit, stimpack, berserk) at once
+
+alias Standard_Red "medtoggle 0; stmtoggle 0; brztoggle 0"  // Default DOOM red crosses
+alias Green_Cross "medtoggle 1; stmtoggle 1; brztoggle 1"   // Green medical crosses
+alias Pills_Here "medtoggle 2; stmtoggle 2; brztoggle 2"
