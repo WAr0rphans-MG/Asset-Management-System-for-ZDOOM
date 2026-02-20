@@ -1,0 +1,6 @@
+// Berserk pack sprite variant getter  
+// Returns the current value of the "brztoggle" CVar
+script "BERZOptions" (void)
+{
+    SetResultValue(GetUserCVar(0, "brztoggle"));
+}
