@@ -1,0 +1,6 @@
+// ACS libraries to load
+// Each contains getter scripts that DECORATE actors call to check CVar values
+
+MEDOPT   // Medikit variant getter script
+STIMOPT  // Stimpack variant getter script  
+BERZOPT  // Berserk variant getter script
