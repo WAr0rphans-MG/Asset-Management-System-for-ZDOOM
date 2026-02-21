@@ -1,0 +1,51 @@
+v1 - Menu-Driven Presets (Attempted)
+Overview
+Building on v0, this version attempted to add preset functionality through dropdown menus instead of button commands. Users could select "Preset" or "Custom" mode via a master toggle, then choose from preset options or set individual items.
+Development: October 2022 (part of the rapid v1→v3-alpha iteration period)
+What Changed from v0
+Added Features
+Master toggle (asmtoggle): Preset vs Custom mode selector
+Preset dropdown (pretoggle): Select Standard Red / Green Cross / Pills for all items
+HUD integration (SBARINFO): Health and armor icons now reflect selected variants
+Armor token system (ArmorIDSystem): Continuously tracks armor type and assigns inventory tokens for HUD display
+Removed Features
+❌ KEYCONF preset button aliases (replaced by menu dropdowns)
+Technical Implementation
+Menu Structure:
+Replaced button-based presets with dropdown-based selection:
+Master dropdown: Choose between "Preset" or "Custom" mode
+Preset dropdown: Choose which preset (affects all items in Preset mode)
+Individual dropdowns: Choose specific items (for Custom mode)
+SYMPreset Script:
+Attempted to implement preset/custom mode switching. The logic has significant flaws:
+Variables declared at the top but never used
+Custom mode (asmtoggle=1) doesn't actually function
+Flow control issues prevent proper execution
+ArmorIDSystem Script:
+Runs continuously (ENTER + loop) to track player armor and assign tokens for SBARINFO. Highly repetitive with the same logic blocks repeated multiple times - reflects limited understanding of flow control at the time.
+SBARINFO:
+Checks CVars (medtoggle, brztoggle) and inventory tokens to display correct HUD sprites. Works correctly for preset display but doesn't support custom mode properly due to ACS issues.
+Components
+ACS: 5 scripts total
+3 getter scripts (MEDOptions, STIMOptions, BERZOptions) - carried over from v0
+1 preset script (SYMPreset) - new, non-functional custom mode logic
+1 armor tracking script (ArmorIDSystem) - new, for HUD token distribution
+DECORATE: Same stop-based logic as v0 (still requires level reload)
+MENUDEF: Updated with Master/Preset/Individual dropdowns
+CVARINFO: Added pretoggle and asmtoggle CVars
+SBARINFO: New HUD display system checking CVars and tokens
+LOADACS: Now loads MEDSymbol and ArmorID libraries
+Limitations
+❌ Custom mode doesn't work - preset logic incomplete
+❌ Performance overhead - ArmorIDSystem loops every tic
+❌ Still requires level reload - DECORATE remains stop-based
+❌ Excessive code repetition - same checks duplicated many times in ArmorIDSystem
+What I Learned
+This version taught me that menu-driven UX is better than button commands, but also exposed my lack of understanding around:
+Proper flow control and conditional logic
+Variable scope and usage
+Efficient state management without constant looping
+How to structure code to avoid massive repetition
+These lessons drove improvements in later versions. The attempt at custom mode logic, while unsuccessful, helped me understand what I needed to learn about ACS scripting patterns.
+Credits
+Built on Delashin's Smooth Doom Remake - continued use of base mod patterns and HUD structure.
