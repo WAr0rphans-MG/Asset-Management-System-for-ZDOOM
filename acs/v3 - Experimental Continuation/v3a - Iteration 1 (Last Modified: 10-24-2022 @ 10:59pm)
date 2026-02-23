@@ -1,0 +1,79 @@
+#library "MEDSymbol"
+#include "zcommon.acs"
+
+script "SYMPreset" (void)
+{
+	//SetCVar("custoggle", 1);
+	int Medikit = GetCVar("medtoggle");
+	int Stimpack = GetCVar("stmtoggle");
+	int Berserk = GetCVar("brztoggle");
+	int Preset = GetCVar("pretoggle");
+	int Master = GetCVar("asmtoggle");
+	
+    If(Preset == 1 && Master == 0 || Preset == 1 && Master == 1)
+	{
+		SetCVar("medtoggle", 0);
+		SetCVar("stmtoggle", 0);
+		SetCVar("brztoggle", 0);
+		If(Medikit == 1 || Medikit == 2 || Stimpack == 1 || Stimpack == 2 || Berserk == 1 || Berserk == 2)
+		{
+			SetCVar("pretoggle", 0);
+			SetResultValue(GetCVar("medtoggle"));
+			SetResultValue(GetCVar("stmtoggle"));
+			SetResultValue(GetCVar("brztoggle"));
+			
+		}
+	}
+    Else If(Preset == 2 && Master == 0 || Preset == 2 && Master == 1)
+	{
+		SetCVar("medtoggle", 1);
+		SetCVar("stmtoggle", 1);
+		SetCVar("brztoggle", 1);
+		If(Medikit == 0 || Medikit == 2 || Stimpack == 0 || Stimpack == 2 || Berserk == 0 || Berserk == 2)
+		{
+			SetCVar("pretoggle", 0);
+			SetResultValue(GetCVar("medtoggle"));
+			SetResultValue(GetCVar("stmtoggle"));
+			SetResultValue(GetCVar("brztoggle"));
+			
+		}
+	}
+    Else If(Preset == 3 && Master == 0 || Preset == 3 && Master == 1)
+	{
+		SetCVar("medtoggle", 2);
+		SetCVar("stmtoggle", 2);
+		SetCVar("brztoggle", 2);
+		If(Medikit == 0 || Medikit == 1 || Stimpack == 0 || Stimpack == 1 || Berserk == 0 || Berserk == 1)
+		{
+			SetCVar("pretoggle", 0);
+			SetResultValue(GetCVar("medtoggle"));
+			SetResultValue(GetCVar("stmtoggle"));
+			SetResultValue(GetCVar("brztoggle"));
+			
+		}
+	}
+	Else If(Preset == 0)
+	{
+		SetCVar("asmtoggle", 1);
+		SetResultValue(GetCVar("medtoggle"));
+		SetResultValue(GetCVar("stmtoggle"));
+		SetResultValue(GetCVar("brztoggle"));
+	}
+}
+
+/*
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("medtoggle"));
+	}
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("stmtoggle"));
+	}
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("brztoggle"));
+	}
+
+	(GetCVar("pretoggle") == 0 && GetCVar("asmtoggle") == 0)
+*/
