@@ -1,0 +1,102 @@
+// ============================================================
+// v1 Second Attempt (October 2022)
+// 
+// Code: Written by W@r0rphans (Oct 2022)
+// Comments: Added Feb 2025 with Claude AI assistance
+// 
+// Last modified: 3 days after v1 attempt 1
+// ============================================================
+//
+// APPROACH: Central Preset Management Script
+// Abandoned the "smart getters" approach and created a single
+// script to handle preset logic.
+//
+// LOGIC ATTEMPT:
+// - If pretoggle == 0/1/2: Set all CVars to that value (preset mode)
+// - If asmtoggle == 1: Don't touch CVars (custom mode)
+//
+// THE "DO NOTHING" PATTERN:
+// The three identical SetResultValue blocks were intended as a
+// "do nothing" operation - reading the CVar and returning it
+// without changing anything. At this point, didn't understand
+// that you can just... not call anything to do nothing.
+//
+// PROBLEMS:
+// 1. Three identical conditions (asmtoggle==1) - only first executes
+// 2. SetResultValue only returns ONE value to caller (not three)
+// 3. Variables declared at top but never used
+// 4. No entry point - script needs OPEN/ENTER or explicit call
+// 5. Preset logic works, but "custom mode" logic doesn't execute
+//
+// WHAT THIS SHOWS:
+// - Understanding that preset mode should SET CVars ✓
+// - Understanding that custom mode shouldn't touch CVars ✓
+// - Struggling with HOW to express "do nothing" in code
+// - Not yet understanding flow control (duplicate conditions)
+//
+// The commented compound condition at bottom shows awareness that
+// combining checks might be needed, but wasn't implemented yet.
+// ============================================================
+
+#library "MEDSymbol"
+#include "zcommon.acs"
+
+script "SYMPreset" (void)
+{
+    // Variables declared at top but never used
+    // Possibly intended for later logic that didn't materialize
+	int medtoggle = GetCVar("medtoggle");
+	int stmtoggle = GetCVar("stmtoggle");
+	int brztoggle = GetCVar("brztoggle");
+	
+    // Preset mode logic - sets all CVars to match pretoggle value
+    // This part is correct and represents good understanding of the goal
+    If(GetCVar("pretoggle") == 0)
+	{
+		SetCVar("medtoggle", 0);
+		SetCVar("stmtoggle", 0);
+		SetCVar("brztoggle", 0);
+	}
+    Else If(GetCVar("pretoggle") == 1)
+	{
+		SetCVar("medtoggle", 1);
+		SetCVar("stmtoggle", 1);
+		SetCVar("brztoggle", 1);
+	}
+    Else If(GetCVar("pretoggle") == 2)
+	{
+		SetCVar("medtoggle", 2);
+		SetCVar("stmtoggle", 2);
+		SetCVar("brztoggle", 2);
+	}
+    
+    // Attempted "do nothing" for custom mode
+    // PROBLEM: All three conditions are identical (asmtoggle==1)
+    // Only the first block can execute, making the other two unreachable
+    // 
+    // INTENT: In custom mode, read each CVar and return it unchanged
+    // Used SetResultValue as a "do nothing" operation - reading the value
+    // and returning it without modification
+    //
+    // WHY THIS DOESN'T WORK:
+    // - Only one SetResultValue matters (the last one called)
+    // - Duplicate conditions mean only first executes
+    // - Better approach: just don't do anything in custom mode!
+	Else If (GetCVar("asmtoggle") == 1)  // Custom mode check #1
+	{
+		SetResultValue(GetCVar("medtoggle"));  // "Do nothing" to medtoggle
+	}
+	Else If (GetCVar("asmtoggle") == 1)  // Custom mode check #2 (UNREACHABLE!)
+	{
+		SetResultValue(GetCVar("stmtoggle"));  // Never executes
+	}
+	Else If (GetCVar("asmtoggle") == 1)  // Custom mode check #3 (UNREACHABLE!)
+	{
+		SetResultValue(GetCVar("brztoggle"));  // Never executes
+	}
+}
+
+// Commented exploration: compound condition
+// Shows awareness that combining pretoggle AND asmtoggle checks might be needed
+// This insight would eventually lead to v1-successful and v3-alpha
+//	(GetCVar("pretoggle") == 0 && GetCVar("asmtoggle") == 0)
