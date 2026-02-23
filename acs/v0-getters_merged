@@ -1,1 +1,39 @@
-testing
+// ============================================================
+// v0 Getter Scripts (September 2022)
+// ============================================================
+// Simple getter pattern: DECORATE calls these scripts to
+// retrieve CVar values. Each script returns one CVar value.
+//
+// These are loaded via LOADACS as separate libraries:
+// - MEDOPT
+// - STIMOPT  
+// - BERZOPT
+// ============================================================
+
+// --- MEDOPT.acs ---
+// Medikit sprite variant getter
+// Returns the current value of the "medtoggle" CVar
+// Called by NewMedikit actor to determine which sprite to display
+
+script "MEDOptions" (void)
+{
+    SetResultValue(GetUserCVar(0, "medtoggle"));
+}
+
+// --- STIMOPT.acs ---
+// Stimpack sprite variant getter
+// Returns the current value of the "stmtoggle" CVar
+
+script "STIMOptions" (void)
+{
+    SetResultValue(GetUserCVar(0, "stmtoggle"));
+}
+
+// --- BERZOPT.acs ---
+// Berserk pack sprite variant getter
+// Returns the current value of the "brztoggle" CVar
+
+script "BERZOptions" (void)
+{
+    SetResultValue(GetUserCVar(0, "brztoggle"));
+}
