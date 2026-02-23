@@ -1,0 +1,102 @@
+// ============================================================
+// v1-successful (October 2022)
+// 
+// Code: Written by W@r0rphans (Oct 2022)
+// Comments: Added Feb 2025 with Claude AI assistance
+// 
+// Source: This working version was preserved as commented code
+// in v2 files, suggesting it was a reference point for later
+// attempts to add the overlap/quick-set feature.
+// ============================================================
+//
+// BREAKTHROUGH: This version actually works!
+//
+// WHAT IT DOES:
+// - Preset mode (Master==0): Sets all CVars to match preset value
+// - Custom mode (Master==1): Leaves CVars untouched (do nothing)
+//
+// HOW IT WORKS:
+// DECORATE actors call this script every frame, passing current
+// Master and Preset values. Script checks conditions and either
+// sets CVars (preset mode) or does nothing (custom mode).
+//
+// THE LIMITATION:
+// No overlap/quick-set behavior - changing the preset dropdown
+// in custom mode does nothing (conditions check Master==0).
+// This differs from v0's button behavior where buttons worked
+// in both modes, allowing quick resets in custom mode.
+//
+// PERFORMANCE ISSUE:
+// This script has no loop - DECORATE must call it every frame,
+// creating overhead. Adding "Delay(1); Restart;" would make it
+// self-sustaining (call once, runs continuously).
+//
+// WHAT WAS LEARNED:
+// - Compound conditions work! (Preset==X && Master==Y)
+// - Variables at top for readability (Preset, Master)
+// - GetUserCVar vs GetCVar distinction (user cvars)
+// - SetResultValue as "do nothing" still present but doesn't break anything
+//
+// This version successfully replaces v0's buttons with dropdowns,
+// but the desire to restore button-like overlap behavior drove
+// v2-v3 development.
+// ============================================================
+
+script "SYMPreset" (void)
+{
+    // Store CVar values in variables for cleaner code and readability
+    // This is good practice - makes conditions easier to understand
+	int Preset = GetUserCVar(0, "pretoggle");
+	int Master = GetUserCVar(0, "asmtoggle");
+	
+    // PRESET MODE - Standard Red
+    // If preset is 0 AND master is preset mode, set all to red (0)
+    If(Preset == 0 && Master == 0)
+	{
+		SetUserCVar(0, "medtoggle", 0);
+		SetUserCVar(0, "stmtoggle", 0);
+		SetUserCVar(0, "brztoggle", 0);
+	}
+    
+    // PRESET MODE - Green Cross
+    // If preset is 1 AND master is preset mode, set all to green (1)
+    Else If(Preset == 1 && Master == 0)
+	{
+		SetUserCVar(0, "medtoggle", 1);
+		SetUserCVar(0, "stmtoggle", 1);
+		SetUserCVar(0, "brztoggle", 1);
+	}
+    
+    // PRESET MODE - Pills Here
+    // If preset is 2 AND master is preset mode, set all to pills (2)
+    Else If(Preset == 2 && Master == 0)
+	{
+		SetUserCVar(0, "medtoggle", 2);
+		SetUserCVar(0, "stmtoggle", 2);
+		SetUserCVar(0, "brztoggle", 2);
+	}
+    
+    // CUSTOM MODE - Do Nothing
+    // If master is custom mode (1), don't touch individual CVars
+    // Uses SetResultValue as "do nothing" operation - reads and returns
+    // values without modification
+    //
+    // NOTE: Only the last SetResultValue matters, but this doesn't break
+    // anything since we're not actually using the return value for logic
+	Else If (Master == 1)
+	{
+		SetResultValue(GetUserCVar(0, "medtoggle"));  // Read medtoggle (unchanged)
+		SetResultValue(GetUserCVar(0, "stmtoggle"));  // Read stmtoggle (unchanged)
+		SetResultValue(GetUserCVar(0, "brztoggle"));  // Read brztoggle (unchanged)
+	}
+}
+
+// ============================================================
+// TO MAKE THIS OPTIMAL:
+// Add these two lines at the end to make it self-sustaining:
+//     Delay(1);
+//     Restart;
+//
+// This would make the script loop continuously instead of
+// requiring DECORATE to call it every frame, reducing overhead.
+// ============================================================
