@@ -1,0 +1,137 @@
+#library "MEDSymbol"
+#include "zcommon.acs"
+
+script "SYMPreset" (void)
+{
+	int Preset = GetUserCVar(0, "pretoggle");
+	int Master = GetUserCVar(0, "asmtoggle");
+	
+	int Medikit = GetCVar("medtoggle");
+	int Stimpack = GetCVar("stmtoggle");
+	int Berserk = GetCVar("brztoggle");
+	
+	If(Preset == 0 && Master == 0 || Preset == 0 && Master == 1)
+	{
+		SetUserCVar(0, "medtoggle", 0);
+		SetUserCVar(0, "stmtoggle", 0);
+		SetUserCVar(0, "brztoggle", 0);
+		If(Medikit || Stimpack || Berserk != 0)
+		{
+			SetResultValue(GetUserCVar(0, "medtoggle"));
+			SetResultValue(GetUserCVar(0, "stmtoggle"));
+			SetResultValue(GetUserCVar(0, "brztoggle"));
+		}
+		Else If(Preset == 1 && Master == 1)
+		{
+			SetUserCVar(0, "medtoggle", 1);
+			SetUserCVar(0, "stmtoggle", 1);
+			SetUserCVar(0, "brztoggle", 1);
+		}
+		Else If(Preset == 2 && Master == 1)
+		{
+			SetUserCVar(0, "medtoggle", 2);
+			SetUserCVar(0, "stmtoggle", 2);
+			SetUserCVar(0, "brztoggle", 2);
+		}
+	}
+	Else If(Preset == 1 && Master == 0 || Preset == 1 && Master == 1)
+	{
+		SetUserCVar(0, "medtoggle", 1);
+		SetUserCVar(0, "stmtoggle", 1);
+		SetUserCVar(0, "brztoggle", 1);
+		If(Medikit || Stimpack || Berserk != 1)
+		{
+			SetResultValue(GetUserCVar(0, "medtoggle"));
+			SetResultValue(GetUserCVar(0, "stmtoggle"));
+			SetResultValue(GetUserCVar(0, "brztoggle"));
+		}
+		Else If(Preset == 0 && Master == 1)
+		{
+			SetUserCVar(0, "medtoggle", 0);
+			SetUserCVar(0, "stmtoggle", 0);
+			SetUserCVar(0, "brztoggle", 0);
+		}
+		Else If(Preset == 2 && Master == 1)
+		{
+			SetUserCVar(0, "medtoggle", 2);
+			SetUserCVar(0, "stmtoggle", 2);
+			SetUserCVar(0, "brztoggle", 2);
+		}
+	}
+	Else If(Preset == 2 && Master == 0 || Preset == 2 && Master == 1)
+	{
+		SetUserCVar(0, "medtoggle", 2);
+		SetUserCVar(0, "stmtoggle", 2);
+		SetUserCVar(0, "brztoggle", 2);
+		If(Medikit || Stimpack || Berserk != 2)
+		{
+			SetResultValue(GetUserCVar(0, "medtoggle"));
+			SetResultValue(GetUserCVar(0, "stmtoggle"));
+			SetResultValue(GetUserCVar(0, "brztoggle"));
+		}
+		Else If(Preset == 0 && Master == 1)
+		{
+			SetUserCVar(0, "medtoggle", 0);
+			SetUserCVar(0, "stmtoggle", 0);
+			SetUserCVar(0, "brztoggle", 0);
+		}
+		Else If(Preset == 1 && Master == 1)
+		{
+			SetUserCVar(0, "medtoggle", 1);
+			SetUserCVar(0, "stmtoggle", 1);
+			SetUserCVar(0, "brztoggle", 1);
+		}
+	}
+}
+
+/*
+
+script "SYMPreset" (void)
+{
+	int Preset = GetUserCVar(0, "pretoggle");
+	int Master = GetUserCVar(0, "asmtoggle");
+	
+    If(Preset == 0 && Master == 0)
+	{
+		SetUserCVar(0, "medtoggle", 0);
+		SetUserCVar(0, "stmtoggle", 0);
+		SetUserCVar(0, "brztoggle", 0);
+	}
+    Else If(Preset == 1 && Master == 0)
+	{
+		SetUserCVar(0, "medtoggle", 1);
+		SetUserCVar(0, "stmtoggle", 1);
+		SetUserCVar(0, "brztoggle", 1);
+	}
+    Else If(Preset == 2 && Master == 0)
+	{
+		SetUserCVar(0, "medtoggle", 2);
+		SetUserCVar(0, "stmtoggle", 2);
+		SetUserCVar(0, "brztoggle", 2);
+	}
+	Else If (Master == 1)
+	{
+		SetResultValue(GetUserCVar(0, "medtoggle"));
+		SetResultValue(GetUserCVar(0, "stmtoggle"));
+		SetResultValue(GetUserCVar(0, "brztoggle"));
+	}
+}
+*/
+
+/*
+
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("medtoggle"));
+	}
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("stmtoggle"));
+	}
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("brztoggle"));
+	}
+
+	(GetCVar("pretoggle") == 0 && GetCVar("asmtoggle") == 0)
+*/
