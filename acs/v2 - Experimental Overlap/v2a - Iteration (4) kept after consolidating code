@@ -6,8 +6,8 @@
 // ============================================================
 //
 // APPROACH: Dual-Script System (Preset + CustomPreset)
-// Returns to v1 attempt 1's concept of separate scripts for
-// each mode, but with more sophisticated logic and a loop.
+// Returns to v2's iteration 1 concept of separate scripts for
+// each mode, but with more sophisticated logic (from v2 iteration 3) and a loop.
 //
 // HOW IT WORKS:
 // - SYMPreset (main loop): Handles preset mode, calls CustomPreset
