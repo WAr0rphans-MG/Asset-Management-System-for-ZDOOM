@@ -1,0 +1,143 @@
+// ============================================================
+// v1 First Attempt (October 2022)
+// 
+// Code: Written by W@r0rphans (Oct 2022)
+// Comments: Added Feb 2025 with Claude AI assistance
+// ============================================================
+//
+// APPROACH: "Smart Getters"
+// Instead of creating a central preset management script, this 
+// attempt modified the getter scripts themselves to check the 
+// master toggle and return different values based on mode.
+//
+// LOGIC (Actually Sound!):
+// - Custom mode (asmtoggle==1): Return individual CVar values
+// - Preset mode (asmtoggle==0): Return pretoggle value for all
+//
+// This approach would work correctly - getters return the right
+// values when called by DECORATE actors.
+//
+// WHY IT WAS ABANDONED:
+// Looking back years later, it's unclear why this version failed.
+// The logic appears correct, old getters were removed from LOADACS
+// (no name conflict), and DECORATE would call these scripts.
+//
+// Possible issues:
+// - SYMMaster script exists but has no entry point (never runs)
+// - custoggle CVar created but purpose unclear, never read
+// - Something in execution behavior not visible from code alone
+//
+// This is the reality of iterative learning: sometimes you move on
+// from code that doesn't work without fully understanding why, and
+// only later develop the knowledge to debug it properly.
+// ============================================================
+
+#library "MEDSymbols"
+#include "zcommon.acs"
+
+// Master script - purpose unclear
+// Sets custoggle based on asmtoggle, but custoggle is never read anywhere
+// Has no entry point (OPEN/ENTER), so likely never runs
+script "SYMMaster" (void)
+{
+    SetResultValue(GetCVar("asmtoggle"));
+    if (GetCVar("asmtoggle")==0)  // Preset mode
+    {
+        SetCVar("custoggle", TRUE);   // Set custoggle TRUE in preset mode
+    }
+    else  // Custom mode
+    {
+        SetCVar("custoggle", FALSE);  // Set custoggle FALSE in custom mode
+    }
+    // Note: The purpose of custoggle and the logic here remain mysterious
+}
+
+// Medikit sprite variant getter
+// Returns individual CVar in custom mode, preset value in preset mode
+// Logic is sound - this should work when called by DECORATE
+script "MEDOptions" (void)
+{
+    if (GetCVar("asmtoggle")==1)  // Custom mode
+    {
+        SetResultValue(GetCVar("medtoggle"));  // Return individual value
+    }
+    else  // Preset mode
+    {
+        SetResultValue(GetCVar("pretoggle"));  // Return preset (same for all items)
+    }
+}
+
+// Stimpack sprite variant getter
+// Same pattern as MEDOptions
+script "STIMOptions" (void)
+{
+    if (GetCVar("asmtoggle")==1)  // Custom mode
+    {
+        SetResultValue(GetCVar("stmtoggle"));
+    }
+    else  // Preset mode
+    {
+        SetResultValue(GetCVar("pretoggle"));
+    }
+}
+
+// Berserk sprite variant getter
+// Same pattern as above
+script "BERZOptions" (void)
+{
+    if (GetCVar("asmtoggle")==1)  // Custom mode
+    {
+        SetResultValue(GetCVar("brztoggle"));
+    }
+    else  // Preset mode
+    {
+        SetResultValue(GetCVar("pretoggle"));
+    }
+}
+
+// ============================================================
+// COMMENTED OUT CODE - Earlier Experimental Approaches
+// ============================================================
+// These sections show alternative approaches that were tried
+// and abandoned during development. Preserved for reference.
+// ============================================================
+
+/*
+// Alternative BERZOptions approach: SETS CVars instead of just returning values
+// This is closer to a "preset manager" pattern rather than "smart getter"
+// Shows experimentation with different architectural approaches
+script "BERZOptions" (void)
+{
+    if (GetCVar("pretoggle")==0)
+    {
+        SetCVar("brztoggle", 0);  // Explicitly set CVar to match preset
+    }
+    else if (GetCVar("pretoggle")==1)
+    {
+        SetCVar("brztoggle", 1);
+    }
+    else if (GetCVar("pretoggle")==2)
+    {
+        SetCVar("brztoggle", 2);
+    }
+    else
+    {
+        SetResultValue(GetCVar("brztoggle"));  // If no preset match, return current value
+    }
+}
+
+// Another abandoned script - purpose unclear from context
+// Possibly meant to toggle custoggle when asmtoggle changes?
+// Never called, no entry point
+script "SYMCustom" (void)
+{
+    if (GetCVar("asmtoggle")==0)  // Preset mode
+    {
+        SetCVar("custoggle", 1);
+    }
+    else if (GetCVar("asmtoggle")==1)  // Custom mode
+    {
+        SetCVar("custoggle", 0);
+    }
+}
+*/
