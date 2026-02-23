@@ -1,0 +1,250 @@
+#library "MEDSymbol"
+#include "zcommon.acs"
+
+script "SYMPreset" (void)
+{
+	int Preset = GetCVar("pretoggle");
+	int Master = GetCVar("asmtoggle");
+
+    If(Preset == 0 && Master == 0)
+	{
+		SetCVar("medtoggle", 0);
+		SetCVar("stmtoggle", 0);
+		SetCVar("brztoggle", 0);
+		If(Preset == 0 && Master == 1)
+		{
+			SetCVar("medtoggle", 0);
+			SetCVar("stmtoggle", 0);
+			SetCVar("brztoggle", 0);
+			ACS_NamedExecute("SYMCustom", 0);
+		}
+		Else If(Preset == 1 && Master == 1)
+		{
+			SetCVar("medtoggle", 1);
+			SetCVar("stmtoggle", 1);
+			SetCVar("brztoggle", 1);
+			ACS_NamedExecute("SYMCustom2", 0);
+		}
+		Else If(Preset == 2 && Master == 1)
+		{
+			SetCVar("medtoggle", 2);
+			SetCVar("stmtoggle", 2);
+			SetCVar("brztoggle", 2);
+			ACS_NamedExecute("SYMCustom3", 0);
+		}
+	}
+	Else If(Preset == 1 && Master == 0)
+	{
+		ACS_NamedExecute("SYMPreset2", 0);
+	}
+	Else If(Preset == 2 && Master == 0)
+	{
+		ACS_NamedExecute("SYMPreset3", 0);
+	}
+	Else If(Preset == 0 && Master == 1)
+	{
+		SetCVar("medtoggle", 0);
+		SetCVar("stmtoggle", 0);
+		SetCVar("brztoggle", 0);
+		ACS_NamedExecute("SYMCustom", 0);
+	}
+}
+
+script "SYMPreset2" (void)
+{
+	int Preset = GetCVar("pretoggle");
+	int Master = GetCVar("asmtoggle");
+
+    If(Preset == 1 && Master == 0)
+	{
+		SetCVar("medtoggle", 1);
+		SetCVar("stmtoggle", 1);
+		SetCVar("brztoggle", 1);
+		If(Preset == 1 && Master == 1)
+		{
+			SetCVar("medtoggle", 1);
+			SetCVar("stmtoggle", 1);
+			SetCVar("brztoggle", 1);
+			ACS_NamedExecute("SYMCustom2", 0);
+		}
+		Else If(Preset == 0 && Master == 1)
+		{
+			SetCVar("medtoggle", 0);
+			SetCVar("stmtoggle", 0);
+			SetCVar("brztoggle", 0);
+			ACS_NamedExecute("SYMCustom", 0);
+		}
+		Else If(Preset == 2 && Master == 1)
+		{
+			SetCVar("medtoggle", 2);
+			SetCVar("stmtoggle", 2);
+			SetCVar("brztoggle", 2);
+			ACS_NamedExecute("SYMCustom3", 0);
+		}
+	}
+	Else If(Preset == 0 && Master == 0)
+	{
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+	Else If(Preset == 2 && Master == 0)
+	{
+		ACS_NamedExecute("SYMPreset3", 0);
+	}
+	Else If(Preset == 1 && Master == 1)
+	{
+		SetCVar("medtoggle", 1);
+		SetCVar("stmtoggle", 1);
+		SetCVar("brztoggle", 1);
+		ACS_NamedExecute("SYMCustom2", 0);
+	}
+}
+
+script "SYMPreset3" (void)
+{
+	int Preset = GetCVar("pretoggle");
+	int Master = GetCVar("asmtoggle");
+
+    If(Preset == 2 && Master == 0)
+	{
+		SetCVar("medtoggle", 2);
+		SetCVar("stmtoggle", 2);
+		SetCVar("brztoggle", 2);
+		If(Preset == 2 && Master == 1)
+		{
+			SetCVar("medtoggle", 2);
+			SetCVar("stmtoggle", 2);
+			SetCVar("brztoggle", 2);
+			ACS_NamedExecute("SYMCustom3", 0);
+		}
+		Else If(Preset == 0 && Master == 1)
+		{
+			SetCVar("medtoggle", 0);
+			SetCVar("stmtoggle", 0);
+			SetCVar("brztoggle", 0);
+			ACS_NamedExecute("SYMCustom", 0);
+		}
+		Else If(Preset == 1 && Master == 1)
+		{
+			SetCVar("medtoggle", 1);
+			SetCVar("stmtoggle", 1);
+			SetCVar("brztoggle", 1);
+			ACS_NamedExecute("SYMCustom2", 0);
+		}
+	}
+	Else If(Preset == 0 && Master == 0)
+	{
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+	Else If(Preset == 1 && Master == 0)
+	{
+		ACS_NamedExecute("SYMPreset2", 0);
+	}
+	Else If(Preset == 2 && Master == 1)
+	{
+		SetCVar("medtoggle", 2);
+		SetCVar("stmtoggle", 2);
+		SetCVar("brztoggle", 2);
+		ACS_NamedExecute("SYMCustom3", 0);
+	}
+}
+
+script "SYMCustom" (void)
+{
+	
+	int Preset = GetCVar("pretoggle");
+	int Master = GetCVar("asmtoggle");
+	
+	If(Preset == 0 && Master == 1)
+	{
+		SetResultValue(GetCVar("medtoggle"));
+		SetResultValue(GetCVar("stmtoggle"));
+		SetResultValue(GetCVar("brztoggle"));
+		If(Preset == 1 && Master == 1)
+		{
+			ACS_NamedExecute("SYMPreset2", 0);
+		}
+		Else If(Preset == 2 && Master == 1)
+		{
+			ACS_NamedExecute("SYMPreset3", 0);
+		}
+	}
+	Else If(Master == 0)
+	{
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+}
+
+script "SYMCustom2" (void)
+{
+	
+	int Preset = GetCVar("pretoggle");
+	int Master = GetCVar("asmtoggle");
+	
+	If(Preset == 1 && Master == 1)
+	{
+		SetResultValue(GetCVar("medtoggle"));
+		SetResultValue(GetCVar("stmtoggle"));
+		SetResultValue(GetCVar("brztoggle"));
+		If(Preset == 0 && Master == 1)
+		{
+			ACS_NamedExecute("SYMPreset", 0);
+		}
+		Else If(Preset == 2 && Master == 1)
+		{
+			ACS_NamedExecute("SYMPreset3", 0);
+		}
+	}
+	Else If(Master == 0)
+	{
+		ACS_NamedExecute("SYMPreset2", 0);
+	}
+}
+
+script "SYMCustom3" (void)
+{
+	
+	int Preset = GetCVar("pretoggle");
+	int Master = GetCVar("asmtoggle");
+	
+	If(Preset == 2 && Master == 1)
+	{
+		SetResultValue(GetCVar("medtoggle"));
+		SetResultValue(GetCVar("stmtoggle"));
+		SetResultValue(GetCVar("brztoggle"));
+		If(Preset == 0 && Master == 1)
+		{
+			ACS_NamedExecute("SYMPreset", 0);
+		}
+		Else If(Preset == 1 && Master == 1)
+		{
+			ACS_NamedExecute("SYMPreset2", 0);
+		}
+	}
+	Else If(Master == 0)
+	{
+		ACS_NamedExecute("SYMPreset3", 0);
+	}
+}
+/*
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("medtoggle"));
+		SetResultValue(GetCVar("stmtoggle"));
+		SetResultValue(GetCVar("brztoggle"));
+	}
+	
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("medtoggle"));
+	}
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("stmtoggle"));
+	}
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("brztoggle"));
+	}
+
+	(GetCVar("pretoggle") == 0 && GetCVar("asmtoggle") == 0)
+*/
