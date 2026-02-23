@@ -1,0 +1,242 @@
+// ============================================================
+// v2 Iteration 4 (October 2022)
+// 
+// Code: Written by W@r0rphans (Oct 2022)
+// Comments: Added Feb 2025 with Claude AI assistance
+// ============================================================
+//
+// APPROACH: Dual-Script System (Preset + CustomPreset)
+// Returns to v1 attempt 1's concept of separate scripts for
+// each mode, but with more sophisticated logic and a loop.
+//
+// HOW IT WORKS:
+// - SYMPreset (main loop): Handles preset mode, calls CustomPreset
+// - SYMCustomPreset: Handles custom mode with overlap attempts
+//
+// THE GOAL:
+// Allow preset dropdown to update values even in custom mode
+// (restore v0 button override behavior).
+//
+// THE PROBLEM:
+// SYMCustomPreset has severely broken nested logic:
+// - Checks "Preset==0" at outer level
+// - Then checks "Preset==1" inside (CAN'T BE TRUE!)
+// - Inner branches never execute
+// - SetResultValue "do nothing" followed by unreachable SetCVar calls
+//
+// Also introduces custoggle again (set to 1 in preset, 0 in custom).
+// Purpose still unclear - possibly for menu state tracking?
+//
+// WHAT WORKS:
+// - Preset mode works correctly (clean logic in SYMPreset)
+// - Loop added (Delay+Restart)
+// - Dual-script separation of concerns
+//
+// WHAT DOESN'T:
+// - Custom mode logic broken (unreachable branches)
+// - Overlap behavior not achieved
+//
+// PRESERVED CODE:
+// Contains v1-successful and fragments from v1 attempt 1 as
+// reference, showing iteration between different approaches.
+// ============================================================
+
+#library "MEDSymbol"
+#include "zcommon.acs"
+
+// Main preset management script
+// Runs continuously (OPEN + loop), handles preset mode
+script "SYMPreset" OPEN
+{
+	int Preset = GetUserCVar(0, "pretoggle");
+	int Master = GetUserCVar(0, "asmtoggle");
+	
+    // PRESET MODE (Master == 0)
+    // Clean, working logic for preset mode
+    If(Master == 0)
+	{
+		SetUserCVar(0, "custoggle", 1);  // Set custoggle to 1 in preset mode
+		
+        // Set all CVars based on preset value
+        // This part works correctly!
+		If(Preset == 0)
+		{
+			SetUserCVar(0, "medtoggle", 0);
+			SetUserCVar(0, "stmtoggle", 0);
+			SetUserCVar(0, "brztoggle", 0);
+		}
+		Else If(Preset == 1)
+		{
+			SetUserCVar(0, "medtoggle", 1);
+			SetUserCVar(0, "stmtoggle", 1);
+			SetUserCVar(0, "brztoggle", 1);
+		}
+		Else If(Preset == 2)
+		{
+			SetUserCVar(0, "medtoggle", 2);
+			SetUserCVar(0, "stmtoggle", 2);
+			SetUserCVar(0, "brztoggle", 2);
+		}
+	}
+    
+    // CUSTOM MODE (Master == 1)
+    // Hand off to separate script
+	Else If(Master == 1)
+	{
+		SetUserCVar(0, "custoggle", 0);  // Set custoggle to 0 in custom mode
+		ACS_NamedExecute("SYMCustomPreset", 0);  // Call custom mode handler
+	}
+    
+    // Loop makes this self-sustaining
+	Delay(1);
+	Restart;
+}
+
+// Custom mode handler
+// Attempts to preserve custom values while allowing preset changes
+script "SYMCustomPreset" (void)
+{
+	int Preset = GetUserCVar(0, "pretoggle");
+	int Master = GetUserCVar(0, "asmtoggle");
+	
+    // Only execute if still in custom mode
+	If(Master == 1)
+	{
+        // Attempt to handle Preset==0 in custom mode
+		If(Preset == 0)
+		{
+            // "Do nothing" to preserve current values
+			SetResultValue(GetUserCVar(0, "medtoggle"));
+			SetResultValue(GetUserCVar(0, "stmtoggle"));
+			SetResultValue(GetUserCVar(0, "brztoggle"));
+            
+            // PROBLEM: Check if Preset==1 INSIDE Preset==0 block
+            // This can NEVER be true! Unreachable code.
+			If(Preset == 1)
+			{
+				SetUserCVar(0, "medtoggle", 1);
+				SetUserCVar(0, "stmtoggle", 1);
+				SetUserCVar(0, "brztoggle", 1);
+			}
+            // Also can't be true inside Preset==0
+			Else If(Preset == 2)
+			{
+				SetUserCVar(0, "medtoggle", 2);
+				SetUserCVar(0, "stmtoggle", 2);
+				SetUserCVar(0, "brztoggle", 2);
+			}
+		}
+        
+        // Same broken pattern for Preset==1
+		Else If(Preset == 1)
+		{
+			SetResultValue(GetUserCVar(0, "medtoggle"));
+			SetResultValue(GetUserCVar(0, "stmtoggle"));
+			SetResultValue(GetUserCVar(0, "brztoggle"));
+            
+            // Can't be true inside Preset==1 block
+			If(Preset == 0)
+			{
+				SetUserCVar(0, "medtoggle", 0);
+				SetUserCVar(0, "stmtoggle", 0);
+				SetUserCVar(0, "brztoggle", 0);
+			}
+			Else If(Preset == 2)
+			{
+				SetUserCVar(0, "medtoggle", 2);
+				SetUserCVar(0, "stmtoggle", 2);
+				SetUserCVar(0, "brztoggle", 2);
+			}
+		}
+        
+        // Same broken pattern for Preset==2
+		Else If(Preset == 2)
+		{
+			SetResultValue(GetUserCVar(0, "medtoggle"));
+			SetResultValue(GetUserCVar(0, "stmtoggle"));
+			SetResultValue(GetUserCVar(0, "brztoggle"));
+            
+            // Can't be true inside Preset==2 block
+			If(Preset == 0)
+			{
+				SetUserCVar(0, "medtoggle", 0);
+				SetUserCVar(0, "stmtoggle", 0);
+				SetUserCVar(0, "brztoggle", 0);
+			}
+			Else If(Preset == 1)
+			{
+				SetUserCVar(0, "medtoggle", 1);
+				SetUserCVar(0, "stmtoggle", 1);
+				SetUserCVar(0, "brztoggle", 1);
+			}
+		}
+	}
+    
+    // If Master changed to 0, restart main preset script
+	Else If(Master == 0)
+	{
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+}
+
+// ============================================================
+// COMMENTED SECTION 1 - v1-successful preserved as reference
+// ============================================================
+// The working version from v1, kept as reference
+
+/*
+
+script "SYMPreset" (void)
+{
+	int Preset = GetUserCVar(0, "pretoggle");
+	int Master = GetUserCVar(0, "asmtoggle");
+	
+    If(Preset == 0 && Master == 0)
+	{
+		SetUserCVar(0, "medtoggle", 0);
+		SetUserCVar(0, "stmtoggle", 0);
+		SetUserCVar(0, "brztoggle", 0);
+	}
+    Else If(Preset == 1 && Master == 0)
+	{
+		SetUserCVar(0, "medtoggle", 1);
+		SetUserCVar(0, "stmtoggle", 1);
+		SetUserCVar(0, "brztoggle", 1);
+	}
+    Else If(Preset == 2 && Master == 0)
+	{
+		SetUserCVar(0, "medtoggle", 2);
+		SetUserCVar(0, "stmtoggle", 2);
+		SetUserCVar(0, "brztoggle", 2);
+	}
+	Else If (Master == 1)
+	{
+		SetResultValue(GetUserCVar(0, "medtoggle"));
+		SetResultValue(GetUserCVar(0, "stmtoggle"));
+		SetResultValue(GetUserCVar(0, "brztoggle"));
+	}
+}
+*/
+
+// ============================================================
+// COMMENTED SECTION 2 - Fragments from v1 attempt 1
+// ============================================================
+// Earlier experimental code showing the evolution
+
+/*
+
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("medtoggle"));
+	}
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("stmtoggle"));
+	}
+	Else If (GetCVar("asmtoggle") == 1)
+	{
+		SetResultValue(GetCVar("brztoggle"));
+	}
+
+	(GetCVar("pretoggle") == 0 && GetCVar("asmtoggle") == 0)
+*/
