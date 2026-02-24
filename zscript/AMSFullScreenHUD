@@ -1,0 +1,495 @@
+class AMSFullScreenHUD : DoomStatusBar
+{
+    override void Draw(int state, double TicFrac)
+    {
+        Super.Init();
+		fullscreenOffsets = TRUE;
+		//SetSize(32, 320, 200);
+		
+		if (state != HUD_Fullscreen)
+			super.Draw(state, TicFrac);
+
+        if (state == HUD_Fullscreen)
+        {
+			//Vector2 hudOffset = (0, 0);
+            let p = CPlayer;
+            if (p == null || p.mo == null)
+                return;
+
+            // --- CVars ---
+            int med = CVar.GetCVar("medtoggle", players[consoleplayer]).GetInt();
+            int d64 = CVar.GetCVar("putoggle", players[consoleplayer]).GetInt();
+            int brz = CVar.GetCVar("brztoggle", players[consoleplayer]).GetInt();
+            int arbo = CVar.GetCVar("botoggle", players[consoleplayer]).GetInt(); // Fixed name
+			Vector2 iconScale = (1.0, 1.0);
+
+            // --- Health Logic ---
+            bool hasBerserk = p.mo.FindInventory("PowerStrength") != null;
+            TextureID icon;
+
+            if (d64 == 1) // Doom 64 mode
+            {
+                if (!hasBerserk) {
+                    switch (med) {														//iconscale=(0.91, 0.91);
+                        case 0: icon = TexMan.CheckForTexture("64MDA0", TexMan.Type_Any); iconscale=(0.97, 0.91); break;
+                        case 1: icon = TexMan.CheckForTexture("64GMA0", TexMan.Type_Any); iconscale=(0.97, 0.91); break;
+                        case 2: icon = TexMan.CheckForTexture("64PMA0", TexMan.Type_Any); iconscale=(0.97, 0.91); break;
+                        case 3: icon = TexMan.CheckForTexture("64LMA0", TexMan.Type_Any); iconscale=(0.97, 0.91); break;
+                    }
+                } else {
+                    switch (brz) {
+                        case 0: icon = TexMan.CheckForTexture("64BZA0", TexMan.Type_Any); iconscale=(0.90, 0.85); break;
+                        case 1: icon = TexMan.CheckForTexture("64GZA0", TexMan.Type_Any); iconscale=(0.90, 0.85); break;
+                        case 2: icon = TexMan.CheckForTexture("64PZA0", TexMan.Type_Any); iconscale=(0.90, 0.85); break;
+                        case 3: icon = TexMan.CheckForTexture("64LZA0", TexMan.Type_Any); iconscale=(0.90, 0.85); break;
+                    }
+                }
+            }
+            else // Classic mode
+            {
+                if (!hasBerserk) {
+                    switch (med) {
+                        case 0: icon = TexMan.CheckForTexture("RMEDA0", TexMan.Type_Any); break;
+                        case 1: icon = TexMan.CheckForTexture("GMEDA0", TexMan.Type_Any); break;
+                        case 2: icon = TexMan.CheckForTexture("PMEDA0", TexMan.Type_Any); break;
+                        case 3: icon = TexMan.CheckForTexture("LMEDA0", TexMan.Type_Any); break;
+                    }
+                } else {
+                    switch (brz) {
+                        case 0: icon = TexMan.CheckForTexture("RPSTA0", TexMan.Type_Any); break;
+                        case 1: icon = TexMan.CheckForTexture("GPSTA0", TexMan.Type_Any); break;
+                        case 2: icon = TexMan.CheckForTexture("PPSTA0", TexMan.Type_Any); break;
+                        case 3: icon = TexMan.CheckForTexture("LPSTA0", TexMan.Type_Any); break;
+                    }
+                }
+            }
+
+            if (!icon.IsValid()) icon = TexMan.CheckForTexture("RMEDA0", TexMan.Type_Any);
+            //DrawTexture(icon, (20, -2), DI_SCREEN_LEFT | DI_SCREEN_BOTTOM/*, scale: iconscale*/);
+			DrawTexture(icon, (20, -2), DI_SCREEN_LEFT | DI_SCREEN_BOTTOM, scale: iconscale);
+            DrawString(mHUDFont, FormatNumber(p.health, 3), (44, -20));
+
+			// ------------------------------------------------------------
+			// ARMOR ICON RESOLUTION (AMS Token System)
+			// ------------------------------------------------------------
+			TextureID armorIcon;
+			let armorInv = BasicArmor(p.mo.FindInventory("BasicArmor"));
+			int armorAmount = armorInv ? armorInv.Amount : 0;
+			Vector2 armorScale = (1.0, 1.0);
+			Vector2 armorOffset = (0, 0);
+
+			// BLUE ARMOR
+			if (p.mo.FindInventory("AMS_ArmorID_Blue"))
+			{
+				// HUD mode override (menu-time or real-time switching)
+				if (d64 == 1)
+				{
+					armorIcon   = TexMan.CheckForTexture("64BAA0", TexMan.Type_Any);
+					armorScale  = (0.73, 0.73);
+					armorOffset = (0, -2);
+				}
+				else
+				{
+					armorIcon   = TexMan.CheckForTexture("BLARA0", TexMan.Type_Any);
+					armorOffset = (0, -2);
+				}
+/*
+				// Presentation token override (ACS catch-up)
+				if (p.mo.FindInventory("D64BarmorToken"))
+				{
+					armorIcon   = TexMan.CheckForTexture("64BAA0", TexMan.Type_Any);
+					armorScale  = (0.73, 0.73);
+					armorOffset = (0, -2);
+				}
+				else if (p.mo.FindInventory("BarmorToken"))
+				{
+					armorIcon = TexMan.CheckForTexture("BLARA0", TexMan.Type_Any);
+					armorOffset = (0, -2);
+				}
+*/
+			}
+			
+			// GREEN ARMOR
+			else if (p.mo.FindInventory("AMS_ArmorID_Green"))
+			{
+				// HUD mode override (menu-time or real-time switching)
+				if (d64 == 1)
+				{
+					armorIcon   = TexMan.CheckForTexture("64GAA0", TexMan.Type_Any);
+					armorScale  = (0.73, 0.73);
+					armorOffset = (0, -2);
+				}
+				else
+				{
+					armorIcon   = TexMan.CheckForTexture("GARMA0", TexMan.Type_Any);
+					armorOffset = (0, -2);
+				}
+/*
+				// Presentation token override (ACS catch-up)
+				if (p.mo.FindInventory("D64GarmorToken"))
+				{
+					armorIcon   = TexMan.CheckForTexture("64GAA0", TexMan.Type_Any);
+					armorScale  = (0.73, 0.73);
+					armorOffset = (0, -2);
+				}
+				else if (p.mo.FindInventory("GarmorToken"))
+				{
+					armorIcon = TexMan.CheckForTexture("GARMA0", TexMan.Type_Any);
+					armorOffset = (0, -2);
+				}
+*/
+			}
+			
+			// Armor Bonus
+			else if (p.mo.FindInventory("AMS_ArmorID_Bonus"))
+			{
+				// HUD mode override (menu-time or real-time switching)
+				if (arbo == 0)
+				{
+					armorIcon = TexMan.CheckForTexture("BON2C0", TexMan.Type_Any);
+					armorOffset = (0, -4);
+				}
+				else if (arbo == 1)
+				{
+					armorIcon = TexMan.CheckForTexture("NUBOC0", TexMan.Type_Any);
+					armorOffset = (0, -4);
+				}
+				else // (arbo == 2)
+				{
+					armorIcon = TexMan.CheckForTexture("64BOC0", TexMan.Type_Any);
+					armorOffset = (0, -4);
+				}
+/*
+				// Presentation token override (ACS catch-up)
+				if (p.mo.FindInventory("KnightToken"))
+				{
+					armorIcon = TexMan.CheckForTexture("BON2C0", TexMan.Type_Any);
+					armorOffset = (0, -4);
+				}
+				else if (p.mo.FindInventory("MarineToken"))
+				{
+					armorIcon = TexMan.CheckForTexture("NUBOC0", TexMan.Type_Any);
+					armorOffset = (0, -4);
+				}
+				else if (p.mo.FindInventory("64HelmToken"))
+				{
+					armorIcon = TexMan.CheckForTexture("64BOC0", TexMan.Type_Any);
+					armorOffset = (0, -4);
+				}
+*/
+			}
+			/* Old Code
+			if (p.mo.FindInventory("BarmorToken"))
+			{
+				armorIcon = TexMan.CheckForTexture("BLARA0", TexMan.Type_Any);
+				armorOffset = (0, -2);
+			}
+			else if (p.mo.FindInventory("D64BarmorToken"))
+			{
+				armorIcon = TexMan.CheckForTexture("64BAA0", TexMan.Type_Any);
+				armorScale = (0.73, 0.73);
+				armorOffset = (0, -2);
+			}
+
+			// GREEN ARMOR
+			else if (p.mo.FindInventory("GarmorToken"))
+			{
+				armorIcon = TexMan.CheckForTexture("GARMA0", TexMan.Type_Any);
+				armorOffset = (0, -2);
+			}
+			else if (p.mo.FindInventory("D64GarmorToken"))
+			{
+				armorIcon = TexMan.CheckForTexture("64GAA0", TexMan.Type_Any);
+				armorScale = (0.73, 0.73);
+				armorOffset = (0, -2);
+			}
+
+			// ARMOR BONUS (Knight / Marine / Doom64)
+			else if (p.mo.FindInventory("ArmorBonusToken"))
+			{
+				if (p.mo.FindInventory("KnightToken"))
+				{
+					armorIcon = TexMan.CheckForTexture("BON2C0", TexMan.Type_Any);
+					armorOffset = (0, -4);
+				}
+				else if (p.mo.FindInventory("MarineToken"))
+				{
+					armorIcon = TexMan.CheckForTexture("NUBOC0", TexMan.Type_Any);
+					armorOffset = (0, -4);
+				}
+				else if (p.mo.FindInventory("64HelmToken"))
+				{
+					armorIcon = TexMan.CheckForTexture("64BOC0", TexMan.Type_Any);
+					armorOffset = (0, -4);
+				}
+			}
+			*/
+
+			// FALLBACK (should never happen)
+			if (!armorIcon.IsValid())
+			{
+				armorIcon = TexMan.CheckForTexture("GARA0", TexMan.Type_Any);
+			}
+/*
+			// Temporary Debug - Print this to console (~)
+			Console.Printf("Armor: %d, BlueToken: %d, GreenToken: %d", 
+				armorAmount, 
+				p.mo.CountInv("D64BarmorToken"), 
+				p.mo.CountInv("D64GarmorToken"));
+*/
+
+			// DRAW ICON + NUMBER
+			//DrawTexture(armorIcon, (20, -22), DI_SCREEN_LEFT | DI_SCREEN_BOTTOM);
+			DrawTexture(armorIcon, (20, -22 + armorOffset.y), DI_SCREEN_LEFT | DI_SCREEN_BOTTOM, scale: armorScale);
+			if (armorAmount > 0)
+			{
+				DrawString(mHUDFont, FormatNumber(armorAmount, 3), (44, -40));
+			}
+			
+			// AMMO
+			Inventory ammotype1, ammotype2;
+			[ammotype1, ammotype2] = GetCurrentAmmo();
+			int invY = -20;
+			Vector2 ammoScale = (1.0, 1.0);
+			Vector2 ammoOffset = (0, 0);
+			if (ammotype1 != null)
+			{
+				TextureID ammoicon = ammotype1.Icon; // default icon
+
+				if (d64 == 1)
+				{
+					// Replace with Doom 64 ammo icon
+					if (ammotype1 is "Clip")
+					{
+						ammoIcon = TexMan.CheckForTexture("CL64A0", TexMan.Type_Any);
+						ammoScale = (0.9, 0.9);
+						ammoOffset = (0, 0);
+					}
+						
+					else if (ammotype1 is "Shell")
+					{
+						ammoIcon = TexMan.CheckForTexture("SL64A0", TexMan.Type_Any);
+						ammoScale = (1.2, 1.2);
+						ammoOffset = (0, -3);
+					}
+						
+					else if (ammotype1 is "RocketAmmo")
+					{
+						ammoIcon = TexMan.CheckForTexture("RK64A0", TexMan.Type_Any);
+						ammoScale = (0.8, 0.8);
+						ammoOffset = (0, 0);
+					}
+
+					else if (ammotype1 is "Cell")
+					{
+						ammoIcon = TexMan.CheckForTexture("PS64A0", TexMan.Type_Any);
+						ammoScale = (0.75, 0.75);
+						ammoOffset = (0, 0);
+					}
+
+				}
+				else
+				{
+					if (ammotype1 is "Clip")
+					{
+						ammoIcon = TexMan.CheckForTexture("CLIPA0", TexMan.Type_Any);
+						ammoScale = (1.2, 1.2);
+						ammoOffset = (0, -1);
+					}
+						
+					else if (ammotype1 is "Shell")
+					{
+						ammoIcon = TexMan.CheckForTexture("SHELA0", TexMan.Type_Any);
+						ammoScale = (1.2, 1.2);
+						ammoOffset = (0, -3);
+					}
+						
+					else if (ammotype1 is "RocketAmmo")
+					{
+						ammoIcon = TexMan.CheckForTexture("ROCKA0", TexMan.Type_Any);
+						ammoScale = (0.8, 0.8);
+						ammoOffset = (0, 0);
+					}
+						
+					else if (ammotype1 is "Cell")
+					{
+						ammoIcon = TexMan.CheckForTexture("CELLA0", TexMan.Type_Any);
+						ammoScale = (1.2, 1.2);
+						ammoOffset = (0, -1);
+					}
+				}
+
+				DrawTexture(ammoicon, (-14, -4 + ammoOffset.y), scale: ammoScale);
+				DrawString(mHUDFont, FormatNumber(ammotype1.Amount, 3), (-30, -20), DI_TEXT_ALIGN_RIGHT);
+			}
+			if (ammotype2 != null && ammotype2 != ammotype1)
+			{
+				TextureID ammoicon2 = ammotype2.Icon; // default icon
+
+				if (d64 == 1)
+				{
+					// Replace with Doom 64 ammo icon
+					if (ammotype2 is "Clip")
+					{
+						ammoicon2 = TexMan.CheckForTexture("CL64A0", TexMan.Type_Any);
+						ammoScale = (0.9, 0.9);
+						ammoOffset = (0, 0);
+					}
+						
+					else if (ammotype2 is "Shell")
+					{
+						ammoicon2 = TexMan.CheckForTexture("SL64A0", TexMan.Type_Any);
+						ammoScale = (1.2, 1.2);
+						ammoOffset = (0, -3);
+					}
+						
+					else if (ammotype2 is "RocketAmmo")
+					{
+						ammoicon2 = TexMan.CheckForTexture("RK64A0", TexMan.Type_Any);
+						ammoScale = (0.8, 0.8);
+						ammoOffset = (0, 0);
+					}
+
+					else if (ammotype2 is "Cell")
+					{
+						ammoicon2 = TexMan.CheckForTexture("PS64A0", TexMan.Type_Any);
+						ammoScale = (0.75, 0.75);
+						ammoOffset = (0, 0);
+					}
+
+				}
+				else
+				{
+					if (ammotype2 is "Clip")
+					{
+						ammoicon2 = TexMan.CheckForTexture("CLIPA0", TexMan.Type_Any);
+						ammoScale = (1.2, 1.2);
+						ammoOffset = (0, -1);
+					}
+						
+					else if (ammotype2 is "Shell")
+					{
+						ammoicon2 = TexMan.CheckForTexture("SHELA0", TexMan.Type_Any);
+						ammoScale = (1.2, 1.2);
+						ammoOffset = (0, -3);
+					}
+						
+					else if (ammotype2 is "RocketAmmo")
+					{
+						ammoicon2 = TexMan.CheckForTexture("ROCKA0", TexMan.Type_Any);
+						ammoScale = (0.8, 0.8);
+						ammoOffset = (0, 0);
+					}
+						
+					else if (ammotype2 is "Cell")
+					{
+						ammoicon2 = TexMan.CheckForTexture("CELLA0", TexMan.Type_Any);
+						ammoScale = (1.2, 1.2);
+						ammoOffset = (0, -1);
+					}
+				}
+
+				DrawTexture(ammoicon2, (-14, -4 + ammoOffset.y), scale: ammoScale);
+				DrawString(mHUDFont, FormatNumber(ammotype2.Amount, 3), (-30, -20), DI_TEXT_ALIGN_RIGHT);
+			}
+			if (!isInventoryBarVisible() && !Level.NoInventoryBar && CPlayer.mo.InvSel != null)
+			{
+				DrawInventoryIcon(CPlayer.mo.InvSel, (-14, invY + 17), DI_DIMDEPLETED);
+				DrawString(mHUDFont, FormatNumber(CPlayer.mo.InvSel.Amount, 3), (-30, invY), DI_TEXT_ALIGN_RIGHT);
+			}
+			
+			// KEYS
+			Vector2 keypos = (-10, 2);
+			int rowc = 0;
+			double roww = 0;
+			Vector2 keyscale = (1.0, 1.0);
+			double vertical = 2;
+			double horizontal = 2;
+			for (let i = CPlayer.mo.Inv; i != null; i = i.Inv)
+			{
+				if (i is "Key" && i.Icon.IsValid())
+				{
+					TextureID keyIcon = i.Icon; // start with the default icon
+
+					if (d64 == 1)
+					{
+						if (i is "BlueCard")
+						{
+							keyIcon = TexMan.CheckForTexture("64STBC0", TexMan.Type_Any);
+							keyscale = (0.875, 0.875);
+							vertical = 0;
+							horizontal = 0;
+						}
+						else if (i is "YellowCard")
+						{
+							keyIcon = TexMan.CheckForTexture("64STYC1", TexMan.Type_Any);
+							keyscale = (0.875, 0.875);
+							vertical = 0;
+							horizontal = 0;
+						}
+						else if (i is "RedCard")
+						{
+							keyIcon = TexMan.CheckForTexture("64STRC2", TexMan.Type_Any);
+							keyscale = (0.875, 0.875);
+							vertical = 0;
+							horizontal = 0;
+						}
+						// SKULLS
+						else if (i is "BlueSkull")
+						{
+							keyIcon = TexMan.CheckForTexture("64STBS3", TexMan.Type_Any);
+							keyscale = (0.78, 0.78);
+							vertical = 0;
+							horizontal = 0;
+							
+						}
+						else if (i is "YellowSkull")
+						{
+							keyIcon = TexMan.CheckForTexture("64STYS4", TexMan.Type_Any);
+							keyscale = (0.78, 0.78);
+							vertical = 0;
+							horizontal = 0;
+						}
+						else if (i is "RedSkull")
+						{
+							keyIcon = TexMan.CheckForTexture("64STRS5", TexMan.Type_Any);
+							keyscale = (0.78, 0.78);
+							vertical = 0;
+							horizontal = 0;
+						}
+					}
+
+					DrawTexture(keyIcon, keypos, DI_SCREEN_RIGHT_TOP|DI_ITEM_LEFT_TOP, scale: keyscale);
+
+					Vector2 size = TexMan.GetScaledSize(keyIcon);
+					keypos.Y += size.Y + vertical;
+					roww = max(roww, size.X);
+					if (++rowc == 3)
+					{
+						keypos.Y = 2;
+						keypos.X -= roww + horizontal;
+						roww = 0;
+						rowc = 0;
+					}
+				}
+			}
+	
+				/* Vanilla Key Code
+				if (i is "Key" && i.Icon.IsValid())
+				{
+					DrawTexture(i.Icon, keypos, DI_SCREEN_RIGHT_TOP|DI_ITEM_LEFT_TOP);
+					Vector2 size = TexMan.GetScaledSize(i.Icon);
+					keypos.Y += size.Y + 2;
+					roww = max(roww, size.X);
+					if (++rowc == 3)
+					{
+						keypos.Y = 2;
+						keypos.X -= roww + 2;
+						roww = 0;
+						rowc = 0;
+					}
+				}
+				*/
+        } // End of if (state == HUD_Fullscreen)
+    }
+}
