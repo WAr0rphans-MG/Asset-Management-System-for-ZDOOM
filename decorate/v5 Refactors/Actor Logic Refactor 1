@@ -1,0 +1,146 @@
+////// Alternate Medical Symbols - Stimpacks //////
+
+////// Stimpack - Base //////
+ACTOR AMS_Stimpack : Stimpack replaces Stimpack
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_NAMEDEXECUTE("SYMWorker")
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==1, "Green")
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==2, "Pills")
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==3, "LBlue")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "64Spawn")
+		RSTM Z 2 /*bright*/ A_SpawnItemEx("AMS_RedStim")
+		stop
+	Green:
+		TNT1 A 0
+		RSTM Z 2 /*bright*/ A_SpawnItemEx("AMS_GreenStim")
+		stop
+	Pills:
+		TNT1 A 0
+		RSTM Z 2 /*bright*/ A_SpawnItemEx("AMS_PillStim")
+		stop
+	LBlue:
+		TNT1 A 0
+		RSTM Z 2 /*bright*/ A_SpawnItemEx("AMS_LBlueStim")
+		stop
+	64Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==1, "64Green")
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==2, "64Pills")
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==3, "64LBlue")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Spawn")
+		RSTM Z 2 /*bright*/ A_SpawnItemEx("AMS_RedStim")
+		stop
+	64Green:
+		TNT1 A 0
+		RSTM Z 2 /*bright*/ A_SpawnItemEx("AMS_GreenStim")
+		stop
+	64Pills:
+		TNT1 A 0
+		RSTM Z 2 /*bright*/ A_SpawnItemEx("AMS_PillStim")
+		stop
+	64LBlue:
+		TNT1 A 0
+		RSTM Z 2 /*bright*/ A_SpawnItemEx("AMS_LBlueStim")
+		stop
+	}
+}
+
+////// Standarad Red //////
+ACTOR AMS_RedStim : Stimpack
+{
+	//+NOINTERACTION
+	states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")!=0, "Master")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "64Spawn")
+		RSTM A 1 //bright
+		loop
+	64Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")!=0, "Master")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Spawn")
+		64ST A 1 //bright
+		loop
+	Master:
+		TNT1 A 0 A_SpawnItemEx("AMS_Stimpack")
+		stop
+	}
+}
+
+////// Green Cross //////
+ACTOR AMS_GreenStim : Stimpack
+{
+	//+NOINTERACTION
+	states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")!=1, "Master")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "64Green")
+		GSTM A 1 //bright
+		loop
+	64Green:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")!=1, "Master")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Spawn")
+		64GS A 1 //bright
+		loop
+	Master:
+		TNT1 A 0 A_SpawnItemEx("AMS_Stimpack")
+		stop
+	}
+}
+
+////// Pill's Here //////
+ACTOR AMS_PillStim : Stimpack
+{
+	//+NOINTERACTION
+	states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")!=2, "Master")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "64Pills")
+		PSTM A 1 //bright
+		loop
+	64Pills:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")!=2, "Master")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Spawn")
+		64PS A 1 //bright
+		loop
+	Master:
+		TNT1 A 0 A_SpawnItemEx("AMS_Stimpack")
+		stop
+	}
+}
+
+////// Nightdive //////
+ACTOR AMS_LBlueStim : Stimpack
+{
+	//+NOINTERACTION
+	states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")!=3, "Master")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "64LBlue")
+		LSTM A 1 //bright
+		loop
+	64LBlue:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("STIMOptions")!=3, "Master")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Spawn")
+		64LS A 1 //bright
+		loop
+	Master:
+		TNT1 A 0 A_SpawnItemEx("AMS_Stimpack")
+		stop
+	}
+}
