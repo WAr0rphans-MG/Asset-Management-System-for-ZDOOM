@@ -1,0 +1,88 @@
+#library "MEDSymbol"
+#include "zcommon.acs"
+
+// =====================================================
+// AMS - Alternative Medical Symbol - Version 5
+// =====================================================
+
+// Global memory for preset-change detection
+int LastPreset = -1;
+
+/*
+// Example preset arrays (expand as needed)
+int MedPreset[4] = {0, 1, 2, 3};
+int StmPreset[4] = {0, 1, 2, 3};
+int BrzPreset[4] = {0, 1, 2, 3};
+*/
+
+script "SYMWorker" (void)
+{
+    int Preset = GetUserCVar(0, "pretoggle");
+    int Master = GetUserCVar(0, "asmtoggle");
+
+    int Medikit  = GetCVar("medtoggle");
+    int Stimpack = GetCVar("stmtoggle");
+    int Berserk  = GetCVar("brztoggle");
+
+    // ---------------------------------------------------------
+    // 0. FIRST-TICK INITIALIZATION
+    // ---------------------------------------------------------
+    if (LastPreset == -1)
+    {
+        LastPreset = Preset;
+    }
+
+    // ---------------------------------------------------------
+    // 1. PRESET MODE (Master = 0)
+    // ---------------------------------------------------------
+    if (Master == 0)
+    {
+        SetUserCVar(0, "medtoggle", Preset);
+        SetUserCVar(0, "stmtoggle", Preset);
+        SetUserCVar(0, "brztoggle", Preset);
+    }
+
+    // ---------------------------------------------------------
+    // 2. CUSTOM MODE (Master = 1 AND preset unchanged)
+    // ---------------------------------------------------------
+    else if (Master == 1 && Preset == LastPreset)
+    {
+        SetResultValue(Medikit);
+        SetResultValue(Stimpack);
+        SetResultValue(Berserk);
+    }
+
+    // ---------------------------------------------------------
+    // 3. PRESET-SWITCH OVERRIDE (Master = 1 AND preset changed)
+    // ---------------------------------------------------------
+    else if (Master == 1 && Preset != LastPreset)
+    {
+        SetUserCVar(0, "medtoggle", Preset);
+        SetUserCVar(0, "stmtoggle", Preset);
+        SetUserCVar(0, "brztoggle", Preset);
+    }
+
+    // ---------------------------------------------------------
+    // 4. UPDATE MEMORY FOR NEXT TICK
+    // ---------------------------------------------------------
+    LastPreset = Preset;
+
+	Delay(1);
+    Restart;
+}
+
+// Getter Scripts for Decorate
+script "MEDOptions" (void)
+{
+    SetResultValue(GetUserCVar(0, "medtoggle"));
+}
+
+script "STIMOptions" (void)
+{
+    SetResultValue(GetUserCVar(0, "stmtoggle"));
+}
+
+script "BERZOptions" (void)
+{
+    SetResultValue(GetUserCVar(0, "brztoggle"));
+}
