@@ -1,0 +1,124 @@
+#library "MEDSymbol"
+#include "zcommon.acs"
+
+// Controller Script that checks Preset (pretoggle) value and determines which Worker Script to run
+script "SYMPreset" (void)
+{
+	int Preset = GetUserCVar(0, "pretoggle");
+	int Master = GetUserCVar(0, "asmtoggle");
+	
+	If(Preset == 0)
+	{
+		ACS_NamedExecute("SYMRed", 0);
+	}
+	Else If(Preset == 1)
+	{
+		ACS_NamedExecute("SYMGreen", 0);
+	}
+	Else If(Preset == 2)
+	{
+		ACS_NamedExecute("SYMPills", 0);
+	}
+	Delay(1);
+	Restart;
+	
+}
+
+// Worker Script for Standard Red (Red Cross, 0) Symbol
+script "SYMRed" (void)
+{
+	int Preset = GetUserCVar(0, "pretoggle");
+	int Master = GetUserCVar(0, "asmtoggle");
+	
+	int Medikit = GetCVar("medtoggle");
+	int Stimpack = GetCVar("stmtoggle");
+	int Berserk = GetCVar("brztoggle");
+	
+	If(Preset == 0 && Master == 0)
+	{
+		SetUserCVar(0, "medtoggle", 0);
+		SetUserCVar(0, "stmtoggle", 0);
+		SetUserCVar(0, "brztoggle", 0);
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+	Else If(Preset == 0 && Master == 1)
+	{
+		SetResultValue(GetUserCVar(0, "medtoggle"));
+		SetResultValue(GetUserCVar(0, "stmtoggle"));
+		SetResultValue(GetUserCVar(0, "brztoggle"));
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+	Else If(Preset != 0 && Master == 1)
+	{
+		SetUserCVar(0, "medtoggle", Preset);
+		SetUserCVar(0, "stmtoggle", Preset);
+		SetUserCVar(0, "brztoggle", Preset);
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+}
+
+// Worker Script for Green Cross (Unity Health, 1) Symbol
+script "SYMGreen" (void)
+{
+	int Preset = GetUserCVar(0, "pretoggle");
+	int Master = GetUserCVar(0, "asmtoggle");
+	
+	int Medikit = GetCVar("medtoggle");
+	int Stimpack = GetCVar("stmtoggle");
+	int Berserk = GetCVar("brztoggle");
+	
+	If(Preset == 1 && Master == 0)
+	{
+		SetUserCVar(0, "medtoggle", 1);
+		SetUserCVar(0, "stmtoggle", 1);
+		SetUserCVar(0, "brztoggle", 1);
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+	Else If(Preset == 1 && Master == 1)
+	{
+		SetResultValue(GetUserCVar(0, "medtoggle"));
+		SetResultValue(GetUserCVar(0, "stmtoggle"));
+		SetResultValue(GetUserCVar(0, "brztoggle"));
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+	Else If(Preset != 1 && Master == 1)
+	{
+		SetUserCVar(0, "medtoggle", Preset);
+		SetUserCVar(0, "stmtoggle", Preset);
+		SetUserCVar(0, "brztoggle", Preset);
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+}
+
+// Worker Script for Pills Here (BFG Edition Red and White Pill, 2) Symbol
+script "SYMPills" (void)
+{
+	int Preset = GetUserCVar(0, "pretoggle");
+	int Master = GetUserCVar(0, "asmtoggle");
+	
+	int Medikit = GetCVar("medtoggle");
+	int Stimpack = GetCVar("stmtoggle");
+	int Berserk = GetCVar("brztoggle");
+	
+	If(Preset == 2 && Master == 0)
+	{
+		SetUserCVar(0, "medtoggle", 2);
+		SetUserCVar(0, "stmtoggle", 2);
+		SetUserCVar(0, "brztoggle", 2);
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+	Else If(Preset == 2 && Master == 1)
+	{
+		SetResultValue(GetUserCVar(0, "medtoggle"));
+		SetResultValue(GetUserCVar(0, "stmtoggle"));
+		SetResultValue(GetUserCVar(0, "brztoggle"));
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+	Else If(Preset != 2 && Master == 1)
+	{
+		SetUserCVar(0, "medtoggle", Preset);
+		SetUserCVar(0, "stmtoggle", Preset);
+		SetUserCVar(0, "brztoggle", Preset);
+		ACS_NamedExecute("SYMPreset", 0);
+	}
+}
