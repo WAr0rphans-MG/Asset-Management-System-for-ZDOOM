@@ -1,1 +1,41 @@
-testing
+class AMSOptionsMenu : OptionMenu
+{
+    int lastPreset;
+
+    override void Init(Menu parent, OptionMenuDescriptor desc)
+    {
+        Super.Init(parent, desc);
+        let cv = CVar.GetCVar("pretoggle", players[consoleplayer]);
+        if (cv) lastPreset = cv.GetInt();
+		let as = CVar.GetCVar("asmtoggle", players[consoleplayer]);
+        if (as) lastPreset = as.GetInt();
+    }
+
+    override void Ticker()
+    {
+        Super.Ticker();
+
+        let cv = CVar.GetCVar("pretoggle", players[consoleplayer]);
+        if (!cv) return;
+		let as = CVar.GetCVar("asmtoggle", players[consoleplayer]);
+        if (!as) lastPreset = as.GetInt();
+
+        int preset = cv.GetInt();
+		int custom = as.GetInt();
+
+        if (preset != lastPreset || custom == 0)
+        {
+            // 1. Update variables via ACS
+            CallACS("SYMWorker", 0);
+
+            // 2. Update our tracker
+            lastPreset = preset;
+
+            // 3. The "Force Refresh" - Re-init current menu
+            // This re-runs the logic that creates the menu items
+			int currentItem = mDesc.mSelectedItem; // Save cursor position
+			Init(mParentMenu, mDesc);              // Refresh
+			mDesc.mSelectedItem = currentItem;     // Restore cursor position
+        }
+    }
+}
