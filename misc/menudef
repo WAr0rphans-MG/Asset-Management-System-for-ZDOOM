@@ -1,1 +1,70 @@
-testing
+OptionMenu "MEDOPT"
+{
+	Title "Alternate Medical Symbols"
+	StaticText " "
+	command "Standard Red Preset",	"Standard_Red"
+	StaticText " "
+	command "Green Cross Preset",	"Green_Cross"
+	StaticText " "
+	command "Pills Here Preset",	"Pills_Here"
+	
+	StaticText " "
+	option "Alternate Medikit Symbols", "medtoggle", "MedBagOfTricks"
+	StaticText " "
+	option "Alternate Stimpak Symbols", "stmtoggle", "MedBagOfTricks"
+	StaticText " "
+	option "Alternate Berserk Symbols", "brztoggle", "MedBagOfTricks"
+}
+
+OptionValue MedBagOfTricks
+{
+	0.0, "Standard Red"
+	1.0, "Green Cross"
+	2.0, "Pills Here"
+}
+
+OptionMenu "OptionsMenu"
+{
+	Title "OPTIONS"
+	StaticText " "
+	//Submenu "Multiplayer Options",		"ZA_MultiplayerOptions" // [TP]
+	StaticText " " // [TP]
+	Submenu "Customize Controls",		"CustomizeControls"
+	Submenu "Mouse options",			"MouseOptions"
+	Submenu "Joystick options",			"JoystickOptions"
+	StaticText " "
+	//Submenu "Player Setup",				"PlayerMenu"
+	Submenu "Gameplay Options",			"GameplayOptions"
+	Submenu "Compatibility Options",	"CompatibilityOptions"
+	Submenu "Automap Options",			"AutomapOptions"
+	Submenu "HUD Options",				"HUDOptions"
+	Submenu "Miscellaneous Options",	"MiscOptions"
+	Submenu "Sound Options",			"SoundOptions"
+	Submenu "Display Options",			"VideoOptions"
+	Submenu "Set video mode",			"VideoModeMenu"
+	StaticText " "
+	SafeCommand "Reset to defaults",	"reset2defaults"
+	SafeCommand	"Reset to last saved",	"reset2saved"
+	Command "Go to console",			"menuconsole"
+	
+	StaticText " "
+	Submenu "Alternative Medical Symbols", "MEDOPT"
+	StaticText " "
+}
+
+// Current
+
+OptionMenu "MEDOPT"
+{
+	Title "Alternate Medical Symbols"
+	StaticText " "
+	option "Alternative Medical Symbol Master", "asmtoggle", "MasterSwitch"
+	StaticText " "
+	option "Alternate Med Symbol Presets", "pretoggle", "MedBagOfTricks"
+	StaticText " "
+	option "Alternate Medikit Symbols", "medtoggle", "MedBagOfTricks"
+	StaticText " "
+	option "Alternate Stimpak Symbols", "stmtoggle", "MedBagOfTricks"
+	StaticText " "
+	option "Alternate Berserk Symbols", "brztoggle", "MedBagOfTricks"
+}
