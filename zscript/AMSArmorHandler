@@ -1,0 +1,54 @@
+class AMSArmorHandler : StaticEventHandler
+{
+    override void WorldTick()
+    {
+        // Iterate through all players in the game
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            if (playeringame[i])
+            {
+                UpdateArmorTokens(players[i].mo);
+            }
+        }
+    }
+
+    void UpdateArmorTokens(Actor p)
+    {
+        if (!p) return;
+
+        let armor = BasicArmor(p.FindInventory("BasicArmor"));
+        
+        name activeToken = 'None';
+
+        if (armor)
+        {
+            int max = armor.ActualSaveAmount;
+            double perc = armor.SavePercent;
+            int amt = armor.Amount;
+
+            if (max == 200 && (perc > 0.49 && perc < 0.51))
+                activeToken = "AMS_ArmorID_Blue";
+            else if (max == 100 && (perc > 0.32 && perc < 0.34) && amt >= 100)
+                activeToken = "AMS_ArmorID_Green";
+            else if (max == 200 && (perc > 0.32 && perc < 0.34) && amt < 100)
+                activeToken = "AMS_ArmorID_Bonus";
+        }
+
+        name tokens[] = {"AMS_ArmorID_Blue", "AMS_ArmorID_Green", "AMS_ArmorID_Bonus"};
+        
+        for (int j = 0; j < tokens.Size(); j++)
+        {
+            if (tokens[j] == activeToken)
+            {
+                // Only give if they don't have it
+                if (p.CountInv(tokens[j]) == 0) p.GiveInventory(tokens[j], 1);
+            }
+            else
+            {
+                // Only take if they do have it
+                if (p.CountInv(tokens[j]) > 0) p.TakeInventory(tokens[j], 999);
+            }
+        }
+    }
+}
+
