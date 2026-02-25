@@ -1,0 +1,87 @@
+ACTOR KnightToken : Inventory
+{
+	Game Doom
+	+UNDROPPABLE
+	Inventory.MaxAmount 1
+}
+
+ACTOR MarineToken : Inventory
+{
+	Game Doom
+	+UNDROPPABLE
+	Inventory.MaxAmount 1
+}
+
+ACTOR 64HelmToken : Inventory
+{
+	Game Doom
+	+UNDROPPABLE
+	Inventory.MaxAmount 1
+}
+
+ACTOR 2DKnitToken : Inventory
+{
+	Game Doom
+	+UNDROPPABLE
+	Inventory.MaxAmount 1
+}
+
+ACTOR GarmorToken : Inventory
+{
+	Game Doom
+	+UNDROPPABLE
+	Inventory.MaxAmount 1
+}
+
+ACTOR BarmorToken : Inventory
+{
+	Game Doom
+	+UNDROPPABLE
+	Inventory.MaxAmount 1
+}
+
+ACTOR D64GarmorToken : Inventory
+{
+	Game Doom
+	+UNDROPPABLE
+	Inventory.MaxAmount 1
+}
+
+ACTOR D64BarmorToken : Inventory
+{
+	Game Doom
+	+UNDROPPABLE
+	Inventory.MaxAmount 1
+}
+
+actor ArmorBonusToken : Inventory
+{
+    Inventory.MaxAmount 1
+    +INVENTORY.UNDROPPABLE
+    +INVENTORY.KEEPDEPLETED
+    +INVENTORY.HUBPOWER
+}
+
+actor AMS_ArmorID_Blue : Inventory
+{
+    Inventory.MaxAmount 1
+    +INVENTORY.UNDROPPABLE
+    +INVENTORY.KEEPDEPLETED
+    +INVENTORY.HUBPOWER
+}
+
+actor AMS_ArmorID_Green : Inventory
+{
+    Inventory.MaxAmount 1
+    +INVENTORY.UNDROPPABLE
+    +INVENTORY.KEEPDEPLETED
+    +INVENTORY.HUBPOWER
+}
+
+actor AMS_ArmorID_Bonus : Inventory
+{
+    Inventory.MaxAmount 1
+    +INVENTORY.UNDROPPABLE
+    +INVENTORY.KEEPDEPLETED
+    +INVENTORY.HUBPOWER
+}
