@@ -1,0 +1,150 @@
+# Documentation
+
+*Created February 2025 with Claude AI assistance*
+
+---
+
+## Overview
+
+This folder contains detailed documentation of the Alternative Medical Symbol system's development journey, architectural evolution, and learning process.
+
+While the component READMEs (acs/, decorate/, zscript/, misc/) focus on **what changed** in each version, these documents explore **why**, **how**, and **what was learned**.
+
+---
+
+## Contents
+
+### [timeline.md](timeline.md)
+**Chronological breakdown of development**
+
+Detailed timeline from August 2022 through February 2026, including:
+- Exact dates from preserved files
+- Development context and motivations
+- Gaps and dormancy periods
+- Active development vs refinement phases
+
+**Read this to understand:** When things happened and what drove each phase of work.
+
+---
+
+### [architecture-evolution.md](architecture-evolution.md)
+**Technical progression and design decisions**
+
+Deep dive into architectural thinking across versions:
+- Pattern discoveries and adaptations
+- Scalability improvements
+- Why certain approaches were chosen over others
+- Trade-offs and compromises
+
+**Read this to understand:** The technical reasoning behind design decisions and how the architecture matured.
+
+---
+
+### [learning-journey.md](learning-journey.md)
+**Personal reflections and meta-lessons**
+
+The human side of the development process:
+- Learning from zero programming knowledge
+- Self-teaching strategies that worked
+- Dealing with failures and dead ends
+- Modern development workflows (AI assistance)
+- Breaking the 15-year pattern of unfinished projects
+
+**Read this to understand:** What it's like to learn GZDoom modding from scratch and how this project became a case study in self-directed learning.
+
+---
+
+## How To Read This Documentation
+
+**For Learning GZDoom Modding:**
+1. Start with [learning-journey.md](learning-journey.md) - See the path from zero to working systems
+2. Read component READMEs (../acs/, ../decorate/, etc.) - Understand what evolved
+3. Dive into [architecture-evolution.md](architecture-evolution.md) - Learn why it evolved that way
+4. Reference [timeline.md](timeline.md) - See the chronological context
+
+**For Technical Reference:**
+1. Start with [architecture-evolution.md](architecture-evolution.md) - Understand design patterns
+2. Reference component READMEs for specific implementations
+3. Check [timeline.md](timeline.md) for development context
+4. Read [learning-journey.md](learning-journey.md) for meta-lessons
+
+**For Portfolio Review:**
+1. Main README (../) - Project overview and scope
+2. [learning-journey.md](learning-journey.md) - Demonstrates learning capacity
+3. [architecture-evolution.md](architecture-evolution.md) - Shows technical thinking
+4. Component READMEs - Proves execution ability
+
+---
+
+## Documentation Philosophy
+
+**This documentation is intentionally:**
+
+### Honest
+- Shows failures alongside successes
+- Admits uncertainty where it exists
+- Transparent about AI assistance
+- Doesn't hide the messy iteration process
+
+### Educational
+- Explains the "why" not just the "what"
+- Includes dead ends and mistakes
+- Shows thought process and decision-making
+- Written for someone learning, not just using
+
+### Complete
+- Preserves all versions (including failed ones)
+- Documents gaps in preservation
+- Acknowledges what's unclear or forgotten
+- Provides context for every major decision
+
+### Accessible
+- Assumes reader is learning GZDoom modding
+- Explains technical concepts clearly
+- Connects to broader programming principles
+- Written in plain language with examples
+
+---
+
+## Target Audiences
+
+**New GZDoom Modders:**
+- See realistic learning path from zero knowledge
+- Understand iteration and failure are normal
+- Get working code to study and adapt
+- Learn documentation best practices
+
+**Experienced Developers:**
+- Reference implementation of clean patterns
+- Architectural insights for their own systems
+- Example of thorough documentation approach
+- Case study in self-directed learning
+
+**Potential Employers:**
+- Demonstrates technical growth over time
+- Shows problem-solving and iteration process
+- Proves ability to learn complex systems independently
+- Highlights communication and documentation skills
+
+---
+
+## Contributing to Documentation
+
+If you find errors, unclear explanations, or want to suggest improvements:
+- Open an issue on GitHub
+- Specific feedback is most helpful (e.g., "timeline.md Oct 24 dates seem conflicted")
+- Suggestions for additional documentation topics welcome
+
+This documentation evolves as understanding deepens - your input helps improve it for future readers.
+
+---
+
+## Related Documentation
+
+- **Main README** (../) - Project overview and introduction
+- **Component READMEs** (../acs/, ../decorate/, ../zscript/, ../misc/) - Version-specific technical details
+- **Code Files** - Inline comments explain implementation details
+
+---
+
+*These documents were created through collaboration between W@r0rphans (code, context, timeline) and Claude AI (structuring, writing, organization). The learning journey and technical decisions are authentic; the documentation helps communicate them clearly.*
