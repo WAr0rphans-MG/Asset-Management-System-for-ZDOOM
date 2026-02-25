@@ -1,0 +1,4 @@
+
+alias Standard_Red "medtoggle 0; stmtoggle 0; brztoggle 0"
+alias Green_Cross "medtoggle 1; stmtoggle 1; brztoggle 1"
+alias Pills_Here "medtoggle 2; stmtoggle 2; brztoggle 2"
