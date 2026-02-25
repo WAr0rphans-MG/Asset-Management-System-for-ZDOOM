@@ -1,0 +1,345 @@
+# Supporting Files
+
+*Code written 2022-2026 | Documentation created February 2025 with Claude AI assistance*
+
+---
+
+## Overview
+
+This directory contains the supporting configuration files that evolved alongside the core ACS/DECORATE/ZScript systems. These files define CVars, menu structure, key bindings, library loading, HUD display, and armor tracking actors.
+
+Unlike the core systems (which had major architectural shifts), these files evolved through incremental additions and refinements as features were added.
+
+---
+
+## Files in This Directory
+
+### Configuration Files (Version-Annotated)
+- **MENUDEF.txt** - Menu structure and option definitions
+- **CVARINFO.txt** - Console variable declarations  
+- **KEYCONF.txt** - Key binding aliases (v0 only)
+- **LOADACS.txt** - ACS library loading configuration
+- **SBARINFO.txt** - Status bar display logic (v1-v4, defunct in v5)
+
+### Armor Tracking System
+- **armor-tracking/** - Evolution of armor type detection and token distribution
+  - **armorid-acs/** - ACS-based armor tracking (v1-v4)
+  - **armorid-decorate/** - DECORATE token actors (v1-v4)
+
+---
+
+## MENUDEF.txt - Menu Structure Evolution
+
+**What it does:** Defines the in-game options menu structure, dropdowns, and control layout.
+
+### v0 (August-September 2022)
+
+**Initial structure:**
+- Custom submenu "Alternative Medical Symbols"
+- Preset buttons (call KEYCONF aliases)
+- Individual item dropdowns (medtoggle, stmtoggle, brztoggle)
+- Copied menu structure from base mod (didn't know about AddOptionMenu yet)
+
+**Menu layout:**
+OptionMenu "MEDOPT"
+{
+Title "Alternate Medical Symbols"
+command "Standard Red Preset", "Standard_Red"    // KEYCONF alias
+command "Green Cross Preset", "Green_Cross"
+command "Pills Here Preset", "Pills_Here"
+
+option "Alternate Medikit Symbols", "medtoggle", "MedBagOfTricks"
+option "Alternate Stimpak Symbols", "stmtoggle", "MedBagOfTricks"
+option "Alternate Berserk Symbols", "brztoggle", "MedBagOfTricks"
+}
+OptionValue MedBagOfTricks
+{
+0.0, "Standard Red"
+1.0, "Green Cross"
+2.0, "Pills Here"
+3.0, "Nightdive"
+}
+**Note:** OptionValue defined 4 options (0-3) but Nightdive wasn't actually supported until v5
+
+---
+
+### v1 (October 2022)
+
+**Added:**
+- Master toggle dropdown (asmtoggle): "Preset" vs "Custom" mode
+- Preset selector dropdown (pretoggle): Choose which preset
+
+**Changes:**
+- Removed KEYCONF command buttons
+- Replaced with cleaner dropdown-based interface
+- Visual consistency with rest of menu system
+
+**New structure:**
+option "Master Toggle", "asmtoggle", "MasterToggle"
+option "Preset Selector", "pretoggle", "MedBagOfTricks"
+option "Alternate Medikit Symbols", "medtoggle", "MedBagOfTricks"
+option "Alternate Stimpak Symbols", "stmtoggle", "MedBagOfTricks"
+option "Alternate Berserk Symbols", "brztoggle", "MedBagOfTricks"
+---
+
+### v2-v4 (October 2022 - December 2025)
+
+**No changes to MENUDEF structure** - evolution happened entirely in ACS logic
+
+The menu definitions remained stable while the underlying preset/custom mode logic was being solved
+
+---
+
+### v5 (January 2026)
+
+**Added:**
+- Nightdive finally enabled as 4th option (value 3)
+- Now matches the OptionValue definition that existed since v0
+
+**Integration with ZScript:**
+- MENUDEF still defines structure
+- But AMSOptionsMenu.zs class overrides Ticker for live preview
+- Menu now updates in real-time as dropdowns change
+
+**Final OptionValue (matching functionality):**
+OptionValue MedBagOfTricks
+{
+0.0, "Standard Red"      // ✓ Working since v0
+1.0, "Green Cross"       // ✓ Working since v0
+2.0, "Pills Here"        // ✓ Working since v0
+3.0, "Nightdive"         // ✓ Added in v5 (was defined but unused v0-v4)
+}
+---
+
+## CVARINFO.txt - Console Variable Declarations
+
+**What it does:** Defines user-configurable console variables that store menu selections.
+
+### v0 (August-September 2022)
+
+**Initial CVars (server-side):**
+```c
+int medtoggle = 0;  // Medikit symbol variant
+int stmtoggle = 0;  // Stimpack symbol variant
+int brztoggle = 0;  // Berserk symbol variant
+Values: 0=Red, 1=Green, 2=Pills, 3=Nightdive (added v5)
+Note: Initially declared as server CVars (not user CVars), changed to user CVars at some point during development
+v1 (October 2022)
+Added:
+int asmtoggle = 0;  // Master toggle: 0=Preset only, 1=Preset+Custom
+int pretoggle = 0;  // Preset selector: 0=Red, 1=Green, 2=Pills, 3=Nightdive
+Also added (experimental, never used):
+int custoggle = 0;  // Purpose unclear - set by scripts but never read
+v2-v5 (October 2022 - January 2026)
+No new CVars added - all evolution happened in how existing CVars were used by scripts
+Additional CVars (from base mod/integration):
+64StylePickups - Toggle DOOM 64 style pickups
+putoggle - Pickup style toggle (referenced in v5 ZScript)
+botoggle - Armor bonus helmet variant toggle
+KEYCONF.txt - Key Binding Aliases
+What it does: Defines keyboard command aliases for quick preset switching.
+v0 Only (August-September 2022)
+Preset button aliases:
+alias Standard_Red "medtoggle 0; stmtoggle 0; brztoggle 0"
+alias Green_Cross "medtoggle 1; stmtoggle 1; brztoggle 1"  
+alias Pills_Here "medtoggle 2; stmtoggle 2; brztoggle 2"
+How it worked:
+MENUDEF had command buttons that called these aliases
+Aliases set all three CVars at once
+Worked in both preset and custom modes (override behavior)
+v1+ (October 2022 onward)
+Removed entirely - button-based presets replaced by dropdown menus
+The override behavior (buttons working in both modes) was the feature v2-v3 tried to restore through ACS logic
+LOADACS.txt - ACS Library Loading
+What it does: Specifies which ACS libraries to load into the game.
+v0 (August-September 2022)
+MEDOPT    // Medikit getter script
+STIMOPT   // Stimpack getter script
+BERZOPT   // Berserk getter script
+Simple getter scripts that DECORATE called to check CVar values
+v1 (October 2022)
+Added:
+MEDSymbol  // Preset management logic
+ArmorID    // Armor tracking and token distribution
+Removed:
+// MEDOPT, STIMOPT, BERZOPT removed to avoid name conflicts
+// (v1 attempt 1 redefined these scripts, caused conflicts if old ones still loaded)
+v2-v4 (October 2022 - December 2025)
+No changes - MEDSymbol and ArmorID remained stable
+Even as MEDSymbol's internal logic evolved dramatically (v1 → v3-alpha), the library name stayed the same
+v5 (January 2026)
+Simplified:
+MEDSymbol  // Now contains unified worker + getters
+// ArmorID removed - replaced by ZScript event handler (AMSArmorHandler.zs)
+Consolidation: one library for all preset logic, armor tracking moved to ZScript
+SBARINFO.txt - Status Bar Display Logic
+What it does: Defines the status bar (HUD) layout and icon display logic.
+v1-v4 (October 2022 - December 2025)
+Declarative HUD definition:
+StatusBar Fullscreen
+{
+    // Health icon
+    IfCVarInt medtoggle equal 0
+    {
+        DrawImage "RMEDA0", ...
+    }
+    IfCVarInt medtoggle equal 1
+    {
+        DrawImage "GMEDA0", ...
+    }
+    
+    // Armor icon
+    InInventory BarmorToken
+    {
+        DrawImage "BLARA0", ...
+    }
+    
+    // etc...
+}
+Characteristics:
+~300+ lines of nested conditionals
+Checks CVars and inventory tokens
+Declarative syntax (limited flexibility)
+Works but hard to maintain
+v5 (January 2026)
+Status: DEFUNCT - completely replaced by ZScript
+Replacement: AMSFullScreenHUD.zs provides:
+Programmatic drawing (full control)
+Cleaner logic (~200 lines but more capable)
+Custom scaling and positioning
+Modern GZDoom standard
+Why replaced:
+SBARINFO limited to declarative checks
+No custom scaling or complex calculations
+Harder to maintain with multiple variants
+ZScript allows object-oriented approach
+Preserved for reference showing the v1-v4 approach
+Armor Tracking System Evolution
+Folder: armor-tracking/
+The medical symbol system required tracking player armor type to display correct HUD icons. This system evolved alongside the main preset logic.
+ArmorID ACS (v1-v4)
+Folder: armor-tracking/armorid-acs/
+What it does: Continuously checks player armor properties and distributes inventory tokens for SBARINFO to read.
+v2 (October 2022):
+Initial implementation
+Added Megasphere support (originally overlooked in v1)
+v2.5 (September 24, 2023):
+Refined version
+Still highly repetitive (~100+ lines of duplicated checks)
+Performance overhead from continuous looping
+Hardcoded actor class names
+How it worked:
+script "ArmorIDSystem" ENTER
+{
+    while (TRUE)
+    {
+        // Check armor class
+        if (CheckInventory("BlueArmor"))
+        {
+            GiveInventory("BarmorToken", 1);
+            TakeInventory("GarmorToken", 999);
+        }
+        else if (CheckInventory("GreenArmor"))
+        {
+            GiveInventory("GarmorToken", 1);
+            TakeInventory("BarmorToken", 999);
+        }
+        // ... massive repetition for each armor type and variant
+        
+        Delay(1);
+    }
+}
+Problems:
+Loops every tic (performance overhead)
+Same logic duplicated many times
+Hardcoded to specific actor names
+Not flexible for mod compatibility
+ArmorID DECORATE (v1-v4)
+Folder: armor-tracking/armorid-decorate/
+Token actors that serve as inventory flags for SBARINFO:
+ACTOR BarmorToken : Inventory
+{
+    Inventory.MaxAmount 1
+}
+
+ACTOR GarmorToken : Inventory
+{
+    Inventory.MaxAmount 1
+}
+
+ACTOR ArmorBonusToken : Inventory
+{
+    Inventory.MaxAmount 1
+}
+
+// And many variant tokens:
+// KnightToken, MarineToken, 64HelmToken, etc.
+How they worked:
+ArmorID ACS gives/takes these tokens based on armor type
+SBARINFO checks InInventory BarmorToken to show blue armor icon
+Multiple tokens for different helmet variants
+Problem: Token explosion - needed separate token for each variant combination
+ZScript Event Handler (v5)
+Replacement: AMSArmorHandler.zs (see zscript/README.md)
+Major improvements:
+Property-based detection (not hardcoded names)
+Array-driven token management (cleaner)
+Automatic execution (StaticEventHandler)
+~40 lines vs ~100+ in ACS
+More efficient (only updates when needed)
+New token system:
+AMS_ArmorID_Blue    // Blue armor (200 max, 50% protection)
+AMS_ArmorID_Green   // Green armor (100 max, 33% protection)
+AMS_ArmorID_Bonus   // Armor bonus (200 max, 33% protection, <100 amount)
+Simpler: 3 tokens instead of 10+, variant handling done in HUD logic instead of separate tokens
+Evolution Summary
+MENUDEF
+v0: Buttons + dropdowns
+v1: Pure dropdowns (cleaner UI)
+v2-v4: Stable
+v5: Nightdive enabled, ZScript integration
+CVARINFO
+v0: 3 CVars (item variants)
+v1: +2 CVars (master, preset)
+v2-v5: Stable
+KEYCONF
+v0: Preset button aliases
+v1+: Removed (buttons → dropdowns)
+LOADACS
+v0: 3 getters
+v1-v4: MEDSymbol + ArmorID
+v5: MEDSymbol only (ArmorID → ZScript)
+SBARINFO
+v1-v4: Declarative HUD (~300 lines)
+v5: DEFUNCT (replaced by ZScript)
+Armor Tracking
+v1-v4: ACS loop + DECORATE tokens
+v5: ZScript event handler (cleaner, faster)
+Key Learning Moments
+Configuration Evolution:
+Started with what worked (copied menu structure from base mod)
+Refined for UX (buttons → dropdowns)
+Learned modern approaches (AddOptionMenu exists, but working structure was fine)
+Library Management:
+Discovered name conflicts matter (LOADACS organization)
+Learned when to consolidate (MEDSymbol absorbed getters in later concepts)
+Understood removal is okay (old libraries can be removed when redefined)
+HUD Approaches:
+SBARINFO works but has limits
+ZScript offers more power and flexibility
+Migration path: define in SBARINFO, migrate to ZScript when needed
+Token Systems:
+Started simple (one token per armor type)
+Exploded with variants (too many tokens)
+Refined to minimal set (3 tokens + logic in HUD)
+Code Commenting Status
+To be commented (post-Feb 28):
+MENUDEF.txt (version annotations)
+CVARINFO.txt (version annotations)
+KEYCONF.txt (brief note about v0 only)
+LOADACS.txt (version annotations)
+SBARINFO.txt (v1-v4 version, defunct note)
+armor-tracking/ ACS and DECORATE files
+Additional Notes
+These supporting files are often overlooked in documentation but are critical to understanding how the system evolved. Small changes in CVARINFO or LOADACS enabled major shifts in architecture.
+The progression from ACS+SBARINFO (v1-v4) to ACS+ZScript (v5) shows adoption of modern GZDoom practices while maintaining backward compatibility with the core DECORATE routing pattern.
