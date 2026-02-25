@@ -1,0 +1,5 @@
+user int pretoggle = 0; // Preset Variable for Symbols
+user int asmtoggle = 0; // Master Variable for "Presets or Custom"
+user int medtoggle = 0; // Medikits Symbol Variable
+user int stmtoggle = 0; // Stimpacks Symbol Variable
+user int brztoggle = 0; // Berserk Symbol Variable
