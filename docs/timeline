@@ -1,0 +1,361 @@
+# Development Timeline
+
+*Code: W@r0rphans (2022-2026) | Documentation: Created February 2025 with Claude AI assistance*
+
+---
+
+## Overview
+
+This timeline reconstructs the Alternative Medical Symbol system's development from preserved file dates, code analysis, and memory. Gaps exist where files were overwritten during active development.
+
+**Total active development: ~6 weeks** spread across two intensive periods (2022 and 2025-2026), separated by a 3-year dormancy.
+
+---
+
+## Pre-History: The Mod Merger Origins
+
+### Mid-August 2022
+**Goal:** Merge two GZDoom mods for personal use
+- RVDoomVox (voxel model support)
+- Delashin's Smooth Doom Remake (enhanced gameplay/visuals)
+
+**Planned customizations:**
+- Replace DOOM 64 sprites with higher-quality DOOM 64 Community Edition versions
+- Add missing DOOM 64 weapons (fists, plasma rifle, BFG)
+- Ensure voxel compatibility
+- Custom sprite replacements
+
+**The spark:** Discovered real-time routing patterns in DSD Remake's weapon states (CVars checked every frame for attachment switching). Realized this could apply to health pickups.
+
+**What started as mod merging** became an exploration of dynamic asset customization systems.
+
+---
+
+## Phase 1: v0 Development (August-September 2022)
+
+### August 22, 2022
+**Last file WITHOUT v0 features** (pre-v0 baseline)
+- Mod merging work in progress
+- No medical symbol system yet
+- DOOM 64 CE sprite replacement work underway
+
+### August 22 - September 5, 2022
+**Active v0 development begins** (~2 weeks)
+- Files from this period overwritten during development (not preserved)
+- Learning ACS from scratch (zero programming knowledge)
+- Reverse-engineering DSD Remake's decompiled scripts
+- Discovering DECORATE real-time routing pattern
+- Creating custom voxels (majority self-made)
+- Trial and error on routing logic
+
+**Known milestone - September 5, 2022:**
+- Medikits and Stimpacks real-time routing complete
+- Working button-based preset system (KEYCONF)
+
+### September 5-14, 2022
+**Completing v0** (~1.5 weeks)
+- Berserk routing nearly complete (missing explicit Pickup state - added later)
+- ArmorID tracking system initial implementation
+- SBARINFO HUD integration
+- DOOM 64 plasma rifle and BFG ports with accurate timing
+
+**Known issue preserved:** Tan-gloved pistol holdover from DSD Remake (requires weapon fire/switch to revert to vanilla sprite)
+
+### September 18, 2022
+**v0 COMPLETE - PK3 final packaging**
+
+**What worked:**
+- Real-time sprite routing (continuous checking + looping)
+- Button-based presets (KEYCONF aliases)
+- Individual item customization (medtoggle, stmtoggle, brztoggle CVars)
+- Override behavior (buttons worked in both preset and custom modes)
+- Complete integration (HUD, armor tracking, all items)
+
+**Total v0 development time: ~4 weeks active work**
+
+---
+
+## Phase 2: v1-v3a Sprint (October 2022)
+
+### September 18 - October 17, 2022
+**Dormancy (~1 month)**
+- v0 worked perfectly
+- No code changes to medical symbol system
+- Continued work on broader mod (weapons, voxels, integration)
+
+### October 17-20, 2022
+**v1 Development Begins** (3-4 days)
+
+**Goal:** Replace v0's working KEYCONF buttons with dropdown menus for visual consistency
+
+**October 17:** v1 development starts
+- Exploring "smart getter" approach (getters check mode and return appropriate value)
+
+**October 20:** First preserved ACS script file
+- v1 attempt 1: Smart getters with unclear failure reason (possibly name conflicts)
+- v1 attempt 2: Central preset script with duplicate conditions and flow control issues
+
+**Between Oct 17-20:** Multiple iterations, most files overwritten
+
+**v1-successful achieved** (preserved in v2 comments):
+- Compound conditions working (`Preset==X && Master==Y`)
+- Clean preset/custom mode separation
+- Variables for readability
+- **Limitation:** No overlap - preset dropdown doesn't work in custom mode (lost v0 button override behavior)
+
+**Learning:** Flow control fundamentals, GetUserCVar vs GetCVar distinction, when/how scripts execute
+
+---
+
+### October 24, 2022
+**INTENSE EXPERIMENTATION DAY** 🔥
+
+**The problem:** Restore v0's button override behavior (preset changes should work in custom mode too)
+
+**Multiple parallel attempts:**
+- **v2a (attempt 1):** First approach to overlap logic
+- **v3:** Consolidation attempt
+- **v3b:** Refinement of v3
+- **v3b1:** Further refinement
+- **v3a (attempt 1):** First exploration of router + worker pattern
+- **v3a (attempt 2):** Second attempt same day
+
+**All failed, but exploration building toward breakthrough**
+
+**What this shows:** Sometimes you need to try EVERYTHING to find what works. Not linear progress, but exhaustive search.
+
+---
+
+### October 25-26, 2022
+**v2 Continued Refinements** (2 days)
+
+**October 25:**
+- v2a attempt 2: Different logic approach
+
+**October 26:**
+- v2a attempt 3 (final): Dual-script system (SYMPreset + SYMCustomPreset)
+- Added Delay + Restart loop (learning!)
+- Preset mode works correctly
+- Custom mode has broken nested logic (Preset==1 checked inside Preset==0 block - unreachable code)
+
+**Key learning:** Loops and continuous execution, but still struggling with overlap logic
+
+---
+
+### October 27, 2022
+**v3-alpha BREAKTHROUGH** ✨
+
+**The router + worker pattern that finally works!**
+SYMPreset (Router):
+Checks pretoggle value
+Calls appropriate worker script
+Workers (SYMRed, SYMGreen, SYMPills):
+Check Master toggle
+Preset mode: Set all CVars
+Custom mode, same preset: Do nothing (preserve custom values)
+Custom mode, different preset: Set CVars (quick-set!)
+**Why it works:**
+- Separation of concerns (routing vs logic)
+- Each worker handles one preset
+- State checking allows overlap behavior
+- Clean, understandable structure
+
+**AFTER 10 DAYS OF ITERATION (Oct 17-27), PRESET/CUSTOM OVERLAP ACHIEVED!** 🎉
+
+**Total v1-v3a development: 10 days** (Oct 17-27, 2022)
+
+---
+
+## Phase 3: Continued Development (Late 2022 - 2023)
+
+### October 2022 - September/October 2023
+**Focus shifts to broader mod integration**
+- Medical symbol system functionally complete (v3-alpha working)
+- Continued work on weapons, voxels, sprite replacements
+- ArmorID refinements:
+  - ArmorID v2 (October 2022) - Added Megasphere support
+  - ArmorID v2.5 (September 24, 2023) - Further refinements
+
+**Medical symbol system: STABLE, no major changes**
+
+---
+
+## Phase 4: The Long Dormancy (October 2023 - December 2025)
+
+### ~3 Years: No Code Work
+- Medical symbol system untouched
+- Broader mod work also paused
+- Other life priorities
+- Pattern of unfinished projects continuing
+
+**The 15-year pattern:** Starting projects, getting them working, then abandoning before documentation/release
+
+---
+
+## Phase 5: Return and Refinement (December 2025 - February 2026)
+
+### December 30, 2025
+**Returned to project after 3-year break**
+
+**Immediate observations:**
+- v3-alpha worked but code was repetitive
+- Scalability issues (adding 4th preset = lots of duplicated code)
+- Could be consolidated
+
+**v4 Development (minutes):**
+- Consolidated worker logic (replaced explicit checks with `Preset != X` pattern)
+- More scalable (adding preset = one condition change)
+- Verified functional
+- **Never actively used** - v5 completed immediately after
+
+**v5 Development with Microsoft Copilot** (same day, <1 hour total):
+
+**Initial architecture generation:**
+- Copilot generated unified worker with state memory pattern
+- Arrays for tracking, detection logic
+
+**Iterative debugging (mental/conversational, no execution):**
+1. Identified initialization bug (would override custom setups on first load)
+2. Removed unnecessary arrays (preset value IS the value!)
+3. Simplified logic through conversation
+4. Added getter scripts back for DECORATE integration
+5. **5-6 iterations from concept to working code**
+
+**What emerged:**
+```c
+int LastPreset = -1;  // Global state memory
+
+script "SYMWorker" (void)
+{
+    if (LastPreset == -1) LastPreset = Preset;  // Initialize
+    
+    if (Master == 0) { /* preset mode */ }
+    else if (Master == 1 && Preset == LastPreset) { /* do nothing */ }
+    else if (Master == 1 && Preset != LastPreset) { /* quick-set */ }
+    
+    LastPreset = Preset;  // Update memory
+}
+Total v4-v5 development: ~3 hours (both versions, same day)
+January 2026
+v5 Refinements and Expansion
+January 27, 2026:
+Final v5 ACS edits and verification
+January 28, 2026:
+DECORATE architectural refactors (both versions in ~1-2 hours)
+First refactor: Factory + color variants
+Master routes by color
+Each color variant is separate actor
+Scales better than v0-v4 (add color = 1 new actor)
+Second refactor: Factory + style variants
+Master routes by style (1993 vs DOOM 64)
+Style actors route by color internally
+Further optimization (2 style actors vs 4+ color actors)
+Best achievable pattern in DECORATE
+ZScript Integration (same day):
+Generated by Copilot/Gemini based on requirements:
+AMSOptionsMenu.zs - Real-time menu preview
+Ticker override runs during menu
+Calls ACS when preset changes
+Refreshes display to show updates
+Bug discovered during Feb 2026 documentation: cv.GetInt() vs as.GetInt() (copy-paste error)
+AMSArmorHandler.zs - Event-driven armor tracking
+Replaces looping ACS ArmorID system
+Property-based detection (not hardcoded class names)
+~40 lines vs ~100+ in ACS
+Automatic multi-player support
+AMSFullScreenHUD.zs - Complete HUD replacement
+Replaces ~300 line SBARINFO
+Programmatic drawing with full control
+Custom scaling per sprite
+Modern GZDoom standard
+Total January 2026 work: ~1 day active development
+February 2026
+Documentation and GitHub Preparation
+Goal: Break 15-year pattern of unfinished projects by documenting and publishing code
+February 1-25:
+Organizing file structure
+Examining preserved files for accurate timeline
+Discovering nearly all original versions during Xbox One S upgrade (500GB→1TB SSD)
+Reconstructing development story
+February 25-28:
+Comprehensive documentation creation with Claude AI assistance
+Component READMEs (acs/, decorate/, zscript/, misc/)
+Main README with project overview
+This timeline document
+Architecture evolution analysis
+Learning journey reflections
+Deadline: February 28, 2026 - Repository ships with full documentation
+Timeline Summary
+Active Development Periods
+Phase 1: v0 (Aug 22 - Sept 18, 2022)
+Duration: ~4 weeks
+Outcome: Complete working system
+Learning: ACS, DECORATE, real-time routing, voxels
+Phase 2: v1-v3a (Oct 17-27, 2022)
+Duration: 10 days
+Outcome: Dropdown menus with preset/custom overlap
+Learning: Flow control, architectural patterns, iteration
+Phase 3: v4-v5 (Dec 30, 2025)
+Duration: ~3 hours
+Outcome: Unified architecture, scalability improvements
+Learning: AI-assisted development, architectural refactoring
+Phase 4: v5 expansion (Jan 28, 2026)
+Duration: ~1 day
+Outcome: DECORATE refactors, ZScript integration
+Learning: Modern GZDoom practices, event-driven systems
+Total active development: ~6 weeks across 3.5 years
+Key Dates Reference
+2022:
+Aug 22: Pre-v0 baseline (last file without medical symbol system)
+Sept 5: Medikits/Stimpacks routing complete
+Sept 14: Berserk nearly complete
+Sept 18: v0 PK3 final packaging ✅
+Oct 17: v1 development begins
+Oct 20: First preserved v1 ACS script
+Oct 24: Intense experimentation (v2a, v3, v3a parallel attempts)
+Oct 25: v2a attempt 2
+Oct 26: v2a attempt 3 (final)
+Oct 27: v3-alpha breakthrough ✨
+2023:
+Sept 24: ArmorID v2.5 refinement
+Oct: Broader mod work continues
+2025-2026:
+Dec 30, 2025: Return to project, v4+v5 completed
+Jan 27, 2026: Final v5 ACS edits
+Jan 28, 2026: DECORATE refactors + ZScript integration
+Feb 25-28, 2026: Documentation sprint
+Feb 28, 2026: Repository ships 🎉
+Gaps in Preservation
+What was overwritten/lost:
+Aug 22 - Sept 5, 2022: Early v0 development iterations
+Stop-based DECORATE (likely existed before real-time discovery)
+Oct 17-20, 2022: Multiple v1 iterations
+Oct 24, 2022: Some v3/v3a experimental versions (b, b1 variants removed after v3a success)
+What's unclear:
+Exact failure reasons for v1 attempts (logic appears sound years later)
+Complete picture of Oct 24 parallel experimentation
+When certain insights occurred (file dates only show checkpoints)
+Preserved well:
+v0 final (Sept 18)
+v1 attempts 1-2 (Oct 20)
+v1-successful (in v2 comments)
+v2a attempts (Oct 24-26)
+v3-alpha final (Oct 27)
+v4-v5 (Dec 2025)
+All ZScript (Jan 2026)
+Development Patterns
+Iterative bursts:
+Not steady progress, but intensive periods
+v0: 4 weeks of focused learning
+v1-v3a: 10 days of rapid iteration
+v4-v5: Hours of refinement (experience + AI assistance)
+Long dormancy:
+3 years between active work
+Pattern of starting but not finishing (15 years)
+Return enabled by clear deadline and documentation focus
+Learning acceleration:
+v0: 4 weeks (learning everything)
+v1-v3a: 10 days (understanding patterns)
+v4-v5: Hours (mastery + AI collaboration)
+Each phase built on previous understanding - couldn't have done v5 without v0-v3a struggles.
+This timeline reconstructed from file dates, code analysis, and memory. Some details may be approximate or unclear - preserved for honesty, not claiming perfect accuracy.
