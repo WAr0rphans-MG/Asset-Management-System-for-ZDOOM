@@ -9,11 +9,6 @@ Sprite assets are not included but will be available when a playable mod release
 To use this code in your own projects, you'll need to provide your own sprites or substitute 
 the sprite names in the DECORATE files.
 
-
-# Asset Management System for ZDOOM
-
-Real-time asset customization system for GZDoom. Swap health/armor pickup sprites instantly via in-game menus with preset and custom modes. Showcases architectural evolution from ACS/DECORATE to ZScript across iterations from 2022-2023, then resumed and refined in late 2025-2026.
-
 ---
 
 ## The Journey
