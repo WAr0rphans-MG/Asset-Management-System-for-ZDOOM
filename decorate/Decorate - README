@@ -1,0 +1,288 @@
+# DECORATE Evolution
+
+*Code written 2022-2026 | Documentation created February 2025 with Claude AI assistance*
+
+---
+
+## Overview
+
+This directory documents the evolution of DECORATE actor logic for the Alternative Medical Symbol (AMS) system. The progression shows the discovery and application of real-time routing patterns, followed by architectural refinements for scalability.
+
+Unlike the ACS evolution (which went through many iterations solving logic problems), DECORATE development was more focused: discover the pattern, apply it successfully, then refine the architecture years later.
+
+---
+
+## The Core Challenge
+
+**Goal:** Make health pickup sprites change in real-time based on menu selections without requiring level reload.
+
+**Traditional approach:** Actors check CVars once on spawn, then stop (static sprites)
+
+**Our solution:** Actors continuously check CVars and jump between sprite states (dynamic sprites)
+
+---
+
+## Development Timeline
+
+**August-September 2022:** v0 - Discovery of real-time routing pattern
+
+**October 2022:** v1-v4 - Pattern remains stable while ACS logic evolves
+
+**January 28, 2026:** v5 - Architectural refactors for scalability
+
+---
+
+## Architecture Evolution
+
+### v0: Two Approaches (August-September 2022)
+
+**Stop-Based (Reconstructed)**
+**Folder:** `v0-stop-based/`
+
+The likely initial implementation before discovering real-time routing:
+
+```cpp
+Spawn:
+    TNT1 A 0 A_JumpIf(CallACS("MEDOptions")==1, "Green")
+    RMED A -1  // Display sprite with infinite duration
+    stop       // CRITICAL: Never checks again!
+How it works:
+Actor spawns
+Calls ACS getter to check CVar value
+Jumps to appropriate sprite state
+Stops (sprite frozen until level reload)
+Limitation: Changing CVars in menu has no effect until level reload
+Status: Reconstructed from architectural knowledge - original files overwritten during development
+Real-Time Routing (Preserved)
+Folder: v0-v4-realtime-routing/
+The breakthrough pattern discovered from Delashin's Smooth Doom Remake weapon states:
+Spawn:
+    TNT1 A 0 A_JumpIf(CallACS("MEDOptions")==1, "Green")
+    TNT1 A 0 A_JumpIf(CallACS("MEDOptions")==2, "Pills")
+    TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "64Spawn")
+    RMED A 1  // Display for 1 tic
+    Loop      // CRITICAL: Check again next frame!
+How it works:
+Actor continuously loops through Spawn state
+Checks CVars every tic (35 times per second)
+Jumps to appropriate sprite state when value changes
+Sprite updates in real-time as user changes menu
+The Discovery: Weapon mods use this pattern for real-time attachment/mode switching. Realized it could apply to pickups too!
+Pattern Origin: Learned from DSD Remake's weapon routing (massive shotgun DECORATE with 64Shotgun, GloveToggle, BobToggle toggles checking every tic)
+First preserved version: September 5-14, 2022 (Medikits/Stimpacks complete, Berserk nearly done)
+Pattern Details
+Symbol Actor Separation (from RVDoomVox):
+Early versions used separate visual actors (inspired by RVDoomVox's voxel/sprite separation):
+ACTOR RV_Medikit : Medikit replaces Medikit
+{
+    States
+    {
+        Spawn:
+            // Routing logic here
+            RMED A 1 A_SpawnItemEx("RV_MedikitSymbol")
+            Loop
+    }
+}
+
+ACTOR RV_MedikitSymbol : Medikit
+{
+    +NOINTERACTION  // Visual only, no collision
+    States
+    {
+        Spawn:
+            // Just display sprite
+    }
+}
+Why separate actors:
+Main actor handles routing + pickup behavior
+Symbol actor handles visual display only
+Borrowed from RVDoomVox pattern for reducing voxel/sprite clipping
+Later simplified: v5 removed separation, put everything in main actor
+Berserk Pickup State:
+v0 Berserk initially worked through inheritance but lacked explicit Pickup state:
+ACTOR PerkBerserk : Berserk replaces Berserk
+{
+    States
+    {
+        Spawn:
+            // Routing logic
+        // NO Pickup state - inherited from base Berserk
+    }
+}
+What worked via inheritance:
+Screen tint (red berserk effect) ✓
+Damage multiplier (10x punch damage) ✓
+Health restoration (heal to 100) ✓
+What didn't work:
+Auto-equipping fist weapon ✗
+Selecting modded fist actor (PerkFist) instead of vanilla ✗
+The fix (added later):
+Pickup:
+    TNT1 A 0 A_GiveInventory("PowerStrength")
+    TNT1 A 0 HealThing(100, 0)
+    TNT1 A 0 A_SelectWeapon("PerkFist")  // Force mod fist selection
+    Stop
+Why needed: Ensures modded fist weapon is selected, not vanilla fallback
+v1-v4: Stable Pattern (October 2022 - December 2025)
+Folder: v0-v4-realtime-routing/
+While ACS went through massive iteration (v1 → v3-alpha solving preset logic), DECORATE remained essentially unchanged.
+The real-time routing pattern worked perfectly from the start. The only evolution was in what values the ACS scripts returned, not in how DECORATE used them.
+What this shows: When you find a pattern that works, stick with it! The complexity was in the logic (ACS), not the presentation (DECORATE).
+v5: Architectural Refactors (January 28, 2026)
+Folder: v5-refactored/
+After completing v5 ACS consolidation, turned attention to DECORATE scalability.
+The Problem:
+Real-time routing works great
+But adding 4th preset (Nightdive) would require more states
+Code duplication across all actors (Medikit, Stimpack, Berserk)
+Not scalable for future expansion
+First Refactor: Factory + Color Variants
+Folder: v5-refactored/first-refactor/
+Architecture:
+Master Actor (AMS_Stimpack):
+  └─ Routes to color variant actor
+
+Color Variant Actors:
+  ├─ AMS_RedStim (loops, self-checks)
+  ├─ AMS_GreenStim (loops, self-checks)
+  ├─ AMS_PillStim (loops, self-checks)
+  └─ AMS_LBlueStim (loops, self-checks)
+How it works:
+Master actor:
+Spawn:
+    TNT1 A 0 ACS_NAMEDEXECUTE("SYMWorker")
+    TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==1, "Green")
+    TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==2, "Pills")
+    TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==3, "LBlue")
+    RSTM Z 2 A_SpawnItemEx("AMS_RedStim")  // Spawn appropriate variant
+    stop  // Master's job done
+Variant actor (self-validating):
+ACTOR AMS_GreenStim : Stimpack
+{
+    Spawn:
+        TNT1 A 0 A_JumpIf(CallACS("STIMOptions")!=1, "Master")  // Still correct?
+        GSTM A 1  // Display sprite
+        loop      // Keep checking
+    Master:
+        TNT1 A 0 A_SpawnItemEx("AMS_Stimpack")  // Respawn master to re-route
+        stop
+}
+Why each variant inherits from Stimpack:
+Variants are the actual pickups (need pickup behavior)
+Master disappears after spawning variant
+Player picks up the variant actor, not master
+Benefit: Adding 5th color = 1 new variant actor (not modifying existing code)
+Second Refactor: Factory + Style Variants
+Folder: v5-refactored/second-refactor/
+Further optimization - separate concerns by STYLE instead of COLOR:
+Architecture:
+Master Actor:
+  └─ Routes by STYLE (1993 vs DOOM 64)
+
+Style Actors:
+  ├─ AMS_1993Stim (routes to color states internally)
+  └─ AMS_D64Stim (routes to color states internally)
+Two-tier routing:
+Master routes by style:
+Spawn:
+    TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "64Spawn")
+    RSTM Z 2 A_SpawnItemEx("AMS_1993Stim")  // Spawn 1993 style
+    stop
+64Spawn:
+    64ST Z 2 A_SpawnItemEx("AMS_D64Stim")   // Spawn D64 style
+    stop
+Style actor routes by color:
+ACTOR AMS_1993Stim : Stimpack
+{
+    Spawn:
+        TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==1, "Green")
+        TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==2, "Pills")
+        TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==3, "LBlue")
+        RSTM A 1  // Red 1993 sprite
+        loop
+    Green:
+        GSTM A 1  // Green 1993 sprite
+        loop
+    Pills:
+        PSTM A 1  // Pills 1993 sprite
+        loop
+    LBlue:
+        LSTM A 1  // Light blue 1993 sprite
+        loop
+}
+Benefit:
+Scales better (add new style = 1 actor, not 4)
+Separation of concerns (style vs color)
+Reduces total actors needed (2 style actors vs 4+ color actors)
+First refactor: 4 colors × 2 styles = 8 variant actors needed
+Second refactor: 2 style actors (each handling 4 colors internally)
+Second Refactor - Optimized (Planned)
+Further refinement (mentally designed, not yet implemented):
+Move ACS calls to Spawn state only, keep variant states pure:
+Spawn:
+    TNT1 A 0 ACS_NAMEDEXECUTE("SYMWorker")  // Call ACS once
+    TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==1, "Green")
+    TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==2, "Pills")
+    TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==3, "LBlue")
+    Goto Red
+Red:
+    RSTM A 1  // Just display sprite, no ACS calls
+    Loop
+Green:
+    GSTM A 1  // Just display sprite
+    Loop
+Benefit:
+ACS calls happen once (in Spawn routing)
+Variant states only display sprites (no per-frame overhead)
+Cleaner separation: routing logic vs display logic
+Status: Planned optimization, part of v5 second refactor final version
+Key Learnings
+Pattern Discovery (v0):
+Real-time routing possible by continuous checking + looping
+Pattern learned from weapon mods, applied to pickups
+Symbol actor separation borrowed from voxel mod patterns
+Stability Through Chaos (v1-v4):
+DECORATE pattern worked immediately
+Stayed stable while ACS logic iterated wildly
+Shows value of solid foundational patterns
+Architectural Thinking (v5):
+First refactor: Separate by color (factory + variants)
+Second refactor: Separate by style AND color (two-tier routing)
+Each refactor reduces duplication and improves scalability
+Inheritance Understanding:
+Variants must inherit from base class for pickup behavior
+Explicit states sometimes needed even when inheritance works
+Actor replacement chain (replaces Stimpack → spawns variant → variant is Stimpack)
+Sprite Naming Convention
+Prefix indicates variant:
+R = Red (standard DOOM)
+G = Green
+P = Pills
+L = Light Blue (Nightdive)
+Base names:
+MED = Medikit
+STM = Stimpack
+PST = Berserk (Perk)
+Style suffixes:
+(none) = 1993 style
+64 prefix = DOOM 64 style (e.g., 64ST, 64MD)
+Examples:
+RMED = Red Medikit (1993)
+GSTM = Green Stimpack (1993)
+PPST = Pills Berserk (1993)
+64GS = Green Stimpack (DOOM 64)
+Files & Versions
+v0-stop-based/ - Reconstructed initial approach (likely existed, not preserved)
+v0-v4-realtime-routing/ - Working pattern (Sept 2022 - Dec 2025)
+v5-refactored/first-refactor/ - Factory + color variants (Jan 2026)
+v5-refactored/second-refactor/ - Factory + style variants with optimizations (Jan 2026)
+Code Commenting Status
+To be commented (post-Feb 28):
+v0-stop-based (reconstructed example)
+v0-v4-realtime-routing (preserved working version)
+v5 first refactor
+v5 second refactor
+Additional Notes
+DECORATE evolution was less about solving problems and more about discovering and refining patterns. The real-time routing pattern worked from day one - the challenge was learning it existed and how to apply it.
+The v5 refactors show architectural maturity: not just making code work, but making it maintainable and scalable for future expansion.
+Unlike ACS (which went through failed logic iterations), DECORATE success came from finding the right pattern early and sticking with it.
