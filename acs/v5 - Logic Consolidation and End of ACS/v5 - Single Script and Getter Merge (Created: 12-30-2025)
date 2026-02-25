@@ -8,13 +8,6 @@
 // Global memory for preset-change detection
 int LastPreset = -1;
 
-/*
-// Example preset arrays (expand as needed)
-int MedPreset[4] = {0, 1, 2, 3};
-int StmPreset[4] = {0, 1, 2, 3};
-int BrzPreset[4] = {0, 1, 2, 3};
-*/
-
 script "SYMWorker" (void)
 {
     int Preset = GetUserCVar(0, "pretoggle");
