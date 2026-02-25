@@ -1,0 +1,76 @@
+#library "ArmorID"
+#include "zcommon.acs"
+
+script "ArmorIDSystem" ENTER
+{
+	int AltHelmBonus = GetCVar ("botoggle");
+	
+	If(GetArmorInfo(ARMORINFO_CLASSNAME)=="RV_BlueArmor" || GetArmorInfo(ARMORINFO_CLASSNAME)=="BlueArmorForMegasphere")
+	{
+		GiveInventory("BarmorToken",1);
+	}
+	Else
+	{
+		TakeInventory("BarmorToken",1);
+	};
+
+	
+	If(GetArmorInfo(ARMORINFO_CLASSNAME)=="RV_GreenArmor")
+	{
+		GiveInventory("GarmorToken",1);
+	}
+	Else
+	{
+		TakeInventory("GarmorToken",1);
+	};
+
+	
+    If(AltHelmBonus == 0)
+	{
+		GiveInventory("KnightToken",1);
+	}
+	Else If(AltHelmBonus == 1)
+	{
+		TakeInventory("KnightToken",1);
+		GiveInventory("MarineToken",1);
+	}
+	Else If(AltHelmBonus == 2)
+	{
+		TakeInventory("KnightToken",1);
+		GiveInventory("64HelmToken",1);
+	}
+
+    If(AltHelmBonus == 1)
+	{
+		GiveInventory("MarineToken",1);
+	}
+	Else If(AltHelmBonus == 0)
+	{
+		TakeInventory("MarineToken",1);
+		GiveInventory("KnightToken",1);
+	}
+	Else If(AltHelmBonus == 2)
+	{
+		TakeInventory("MarineToken",1);
+		GiveInventory("64HelmToken",1);
+	}
+	
+    If(AltHelmBonus == 2)
+	{
+		GiveInventory("64HelmToken",1);
+	}
+	Else If(AltHelmBonus == 0)
+	{
+		TakeInventory("64HelmToken",1);
+		GiveInventory("KnightToken",1);
+	}
+	Else If(AltHelmBonus == 1)
+	{
+		TakeInventory("64HelmToken",1);
+		GiveInventory("MarineToken",1);
+	}
+	
+	If(GetArmorInfo(ARMORINFO_CLASSNAME)=="Sp_KnightBonus"){GiveInventory("2DKnitToken",1);}Else{TakeInventory("2DKnitToken",1);};
+	Delay(1);
+	Restart;
+}
