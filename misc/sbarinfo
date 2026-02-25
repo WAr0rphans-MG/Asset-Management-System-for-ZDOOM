@@ -1,0 +1,444 @@
+statusbar fullscreen, fullscreenoffsets // ZDoom HUD
+{
+	IfCVarInt D64toggle, 0, equal
+	{
+		//health
+		IfCVarInt medtoggle, 0, equal
+		{
+			IFCVarInt putoggle, 1, equal
+			{
+				drawimage "64MDA0", 20, -2, centerbottom, 25, 19;
+				drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+			}
+			else
+			{
+				drawimage "RMEDA0", 20, -2, centerbottom;
+				drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+			}
+		}
+		IfCVarInt medtoggle, 1, equal
+		{
+			IFCVarInt putoggle, 1, equal
+			{
+				drawimage "64GMA0", 20, -2, centerbottom, 25, 19;
+				drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+			}
+			else
+			{
+				drawimage "GMEDA0", 20, -2, centerbottom;
+				drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+			}
+		}
+		IfCVarInt medtoggle, 2, equal
+		{
+			IFCVarInt putoggle, 1, equal
+			{
+				drawimage "64PMA0", 20, -2, centerbottom, 25, 19;
+				drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+			}
+			else
+			{
+				drawimage "PMEDA0", 20, -2, centerbottom;
+				drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+			}
+		}
+		//drawimage "MEDIA0", 20, -2, centerbottom;
+		//drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+
+		//berserk
+		IfCVarInt brztoggle, 0, equal
+		{
+			InInventory PowerStrength, 1 
+			 {
+				IFCVarInt putoggle, 1, equal
+				{
+					drawimage "64BZA0", 20, -2, centerbottom, 24, 19;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+				}
+				else
+				{
+					drawimage "RPSTA0", 20, -2, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+				}
+			 }
+		}
+		IfCVarInt brztoggle, 1, equal
+		{
+			InInventory PowerStrength, 1 
+			 {
+				IFCVarInt putoggle, 1, equal
+				{
+					drawimage "64GZA0", 20, -2, centerbottom, 24, 19;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+				}
+				else
+				{
+					drawimage "GPSTA0", 20, -2, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+				}
+			 }
+		}
+		IfCVarInt brztoggle, 2, equal
+		{
+			InInventory PowerStrength, 1 
+			 {
+				IFCVarInt putoggle, 1, equal
+				{
+					drawimage "64PZA0", 20, -2, centerbottom, 24, 19;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+				}
+				else
+				{
+					drawimage "PPSTA0", 20, -2, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+				}
+			 }
+		}
+
+		//armor
+		InInventory "KnightToken", 1
+		{
+			InInventory BasicArmor, 1
+			{
+				drawimage "BON2C0", 20, -24, centerbottom;
+				drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+			}
+		}
+		InInventory "MarineToken", 1
+		{
+			InInventory BasicArmor, 1
+			{
+				drawimage "NUBOC0", 20, -24, centerbottom;
+				drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+			}
+		}
+		InInventory "64HelmToken", 1
+		{
+			InInventory BasicArmor, 1
+			{
+				drawimage "64BOC0", 20, -24, centerbottom;
+				drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+			}
+		}
+		InInventory "2DKnitToken", 1
+		{
+			InInventory BasicArmor, 1
+			{
+				drawimage "BON2C0", 20, -24, centerbottom;
+				drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+			}
+		}
+		InInventory "GarmorToken", 1
+		{
+			InInventory BasicArmor, 1
+			{
+				IfCVarInt putoggle, 1, equal
+				{
+					drawimage "64GAA0", 20, -21, centerbottom, 27, 23;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+				}
+				else
+				{
+					drawimage "GARMA0", 20, -24, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+				}
+			}
+		}
+		InInventory "BarmorToken", 1
+		{
+			InInventory BasicArmor, 1
+			{
+				IfCVarInt putoggle, 1, equal
+				{
+					drawimage "64BAA0", 20, -21, centerbottom, 27, 23;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+				}
+				else
+				{
+					drawimage "BLARA0", 20, -24, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+				}
+			}
+		}
+		//drawimage armoricon, 20, -24, centerbottom;
+		//drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+		
+
+		//ammo
+		drawimage ammoicon1, -14, -4, centerbottom;
+		drawnumber 2147483647, HUDFONT_DOOM, untranslated, ammo1, drawshadow, -25, -20;
+
+		usesammo
+		{
+			//secondary ammo and inventory
+			usessecondaryammo
+			{
+				drawimage ammoicon2, -14, -22, centerbottom;
+				drawnumber 2147483647, HUDFONT_DOOM, untranslated, ammo2, drawshadow, -25, -38;
+				inventorybarnotvisible
+				{
+					drawselectedinventory centerbottom, drawshadow, alwaysshowcounter, HUDFONT_DOOM, -14, -39, -26, -56, untranslated;
+				}
+			}
+			else //no secondary ammo
+			{
+				inventorybarnotvisible
+				{
+					drawselectedinventory centerbottom, drawshadow, alwaysshowcounter, HUDFONT_DOOM, -14, -21, -26, -38, untranslated;
+				}
+			}
+		}
+		else // no ammo but inventory
+		{
+			inventorybarnotvisible
+			{
+				drawselectedinventory centerbottom, drawshadow, alwaysshowcounter, HUDFONT_DOOM, -14, -3, -26, -20, untranslated;
+			}
+		}
+
+		gamemode deathmatch
+		{
+			drawnumber 2147483647, HUDFONT_DOOM, untranslated, frags, drawshadow, -3, 1;
+		}
+		else
+		{
+			
+			IfCVarInt putoggle, 1, equal
+			{
+				drawswitchableimage keyslot 2 && 5, "nullimage", "64STBC0", "64STBS3", "64STBK6", -11, 2;
+				drawswitchableimage keyslot 3 && 6, "nullimage", "64STYC1", "64STYS4", "64STYK7", -11, 15;
+				drawswitchableimage keyslot 1 && 4, "nullimage", "64STRC2", "64STRS5", "64STRK8", -11, 28;
+			}
+			else
+			{
+				drawswitchableimage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", -10, 2;
+				drawswitchableimage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", -10, 10;
+				drawswitchableimage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", -10, 18;
+			}
+			// let's hope no mod ever uses 100 keys...
+			//drawkeybar 100, vertical, reverserows, auto, -10, 2, 0, 3, auto;
+		}
+	}
+	else IfCVarInt D64toggle, 1, equal
+	{
+		InInventory "Isplaying"
+		{
+			//health
+			IfCVarInt medtoggle, 0, equal
+			{
+				IFCVarInt putoggle, 1, equal
+				{
+					drawimage "64MDA0", 20, -2, centerbottom, 25, 19;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+				}
+				else
+				{
+					drawimage "RMEDA0", 20, -2, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+				}
+			}
+			IfCVarInt medtoggle, 1, equal
+			{
+				IFCVarInt putoggle, 1, equal
+				{
+					drawimage "64GMA0", 20, -2, centerbottom, 25, 19;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+				}
+				else
+				{
+					drawimage "GMEDA0", 20, -2, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+				}
+			}
+			IfCVarInt medtoggle, 2, equal
+			{
+				IFCVarInt putoggle, 1, equal
+				{
+					drawimage "64PMA0", 20, -2, centerbottom, 25, 19;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+				}
+				else
+				{
+					drawimage "PMEDA0", 20, -2, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+				}
+			}
+			//drawimage "MEDIA0", 20, -2, centerbottom;
+			//drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+
+			//berserk
+			IfCVarInt brztoggle, 0, equal
+			{
+				InInventory PowerStrength, 1 
+				 {
+					IFCVarInt putoggle, 1, equal
+					{
+						drawimage "64BZA0", 20, -2, centerbottom, 24, 19;
+						drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+					}
+					else
+					{
+						drawimage "RPSTA0", 20, -2, centerbottom;
+						drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+					}
+				 }
+			}
+			IfCVarInt brztoggle, 1, equal
+			{
+				InInventory PowerStrength, 1 
+				 {
+					IFCVarInt putoggle, 1, equal
+					{
+						drawimage "64GZA0", 20, -2, centerbottom, 24, 19;
+						drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+					}
+					else
+					{
+						drawimage "GPSTA0", 20, -2, centerbottom;
+						drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+					}
+				 }
+			}
+			IfCVarInt brztoggle, 2, equal
+			{
+				InInventory PowerStrength, 1 
+				 {
+					IFCVarInt putoggle, 1, equal
+					{
+						drawimage "64PZA0", 20, -2, centerbottom, 24, 19;
+						drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+					}
+					else
+					{
+						drawimage "PPSTA0", 20, -2, centerbottom;
+						drawnumber 2147483647, HUDFONT_DOOM, untranslated, health, drawshadow, 82, -20;
+					}
+				 }
+			}
+
+			//armor
+			InInventory "KnightToken", 1
+			{
+				InInventory BasicArmor, 1
+				{
+					drawimage "BON2C0", 20, -24, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+				}
+			}
+			InInventory "MarineToken", 1
+			{
+				InInventory BasicArmor, 1
+				{
+					drawimage "NUBOC0", 20, -24, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+				}
+			}
+			InInventory "64HelmToken", 1
+			{
+				InInventory BasicArmor, 1
+				{
+					drawimage "64BOC0", 20, -24, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+				}
+			}
+			InInventory "2DKnitToken", 1
+			{
+				InInventory BasicArmor, 1
+				{
+					drawimage "BON2C0", 20, -24, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+				}
+			}
+			InInventory "GarmorToken", 1
+			{
+				InInventory BasicArmor, 1
+				{
+					IfCVarInt putoggle, 1, equal
+					{
+						drawimage "64GAA0", 20, -21, centerbottom, 27, 23;
+						drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+					}
+					else
+					{
+						drawimage "ARM1A0", 20, -24, centerbottom;
+						drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+					}
+				}
+			}
+			InInventory "BarmorToken", 1
+			{
+				InInventory BasicArmor, 1
+				{
+					IfCVarInt putoggle, 1, equal
+					{
+						drawimage "64BAA0", 20, -21, centerbottom, 27, 23;
+						drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+					}
+					else
+					{
+						drawimage "ARM2A0", 20, -24, centerbottom;
+						drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+					}
+				}
+			}
+			//drawimage armoricon, 20, -24, centerbottom;
+			//drawnumber 2147483647, HUDFONT_DOOM, untranslated, armor, drawshadow, whennotzero, 82, -39;
+			
+
+			//ammo
+			drawimage ammoicon1, -14, -4, centerbottom;
+			drawnumber 2147483647, HUDFONT_DOOM, untranslated, ammo1, drawshadow, -25, -20;
+
+			usesammo
+			{
+				//secondary ammo and inventory
+				usessecondaryammo
+				{
+					drawimage ammoicon2, -14, -22, centerbottom;
+					drawnumber 2147483647, HUDFONT_DOOM, untranslated, ammo2, drawshadow, -25, -38;
+					inventorybarnotvisible
+					{
+						drawselectedinventory centerbottom, drawshadow, alwaysshowcounter, HUDFONT_DOOM, -14, -39, -26, -56, untranslated;
+					}
+				}
+				else //no secondary ammo
+				{
+					inventorybarnotvisible
+					{
+						drawselectedinventory centerbottom, drawshadow, alwaysshowcounter, HUDFONT_DOOM, -14, -21, -26, -38, untranslated;
+					}
+				}
+			}
+			else // no ammo but inventory
+			{
+				inventorybarnotvisible
+				{
+					drawselectedinventory centerbottom, drawshadow, alwaysshowcounter, HUDFONT_DOOM, -14, -3, -26, -20, untranslated;
+				}
+			}
+
+			gamemode deathmatch
+			{
+				drawnumber 2147483647, HUDFONT_DOOM, untranslated, frags, drawshadow, -3, 1;
+			}
+			else
+			{
+				
+				IfCVarInt putoggle, 1, equal
+				{
+					drawswitchableimage keyslot 2 && 5, "nullimage", "64STBC0", "64STBS3", "64STBK6", -11, 2;
+					drawswitchableimage keyslot 3 && 6, "nullimage", "64STYC1", "64STYS4", "64STYK7", -11, 15;
+					drawswitchableimage keyslot 1 && 4, "nullimage", "64STRC2", "64STRS5", "64STRK8", -11, 28;
+				}
+				else
+				{
+					drawswitchableimage keyslot 2 && 5, "nullimage", "STKEYS0", "STKEYS3", "STKEYS6", -10, 2;
+					drawswitchableimage keyslot 3 && 6, "nullimage", "STKEYS1", "STKEYS4", "STKEYS7", -10, 10;
+					drawswitchableimage keyslot 1 && 4, "nullimage", "STKEYS2", "STKEYS5", "STKEYS8", -10, 18;
+				}
+				// let's hope no mod ever uses 100 keys...
+				//drawkeybar 100, vertical, reverserows, auto, -10, 2, 0, 3, auto;
+			}
+		}
+	}
+}
