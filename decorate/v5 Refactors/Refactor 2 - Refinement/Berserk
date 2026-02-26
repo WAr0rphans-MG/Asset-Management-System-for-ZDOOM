@@ -1,0 +1,116 @@
+////// Alternate Medical Symbols - BerserkPacks //////
+
+////// Berserk - Base //////
+ACTOR AMS_Berserk : Berserk replaces Berserk
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_NAMEDEXECUTE("SYMWorker")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "64Spawn")
+		RPST Z 2 /*bright*/ A_SpawnItemEx("AMS_1993BRZ")
+		stop
+	64Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Spawn")
+		64RB Z 2 /*bright*/ A_SpawnItemEx("AMS_D64BRZ")
+		stop
+	}
+}
+
+////// 1993 Berserk //////
+ACTOR AMS_1993BRZ : Berserk
+{
+	//+NOINTERACTION
+	states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)==1, "Green")
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)==2, "Pills")
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)==3, "LBlue")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "Master")
+		GoTo Red
+	Red:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)!=0, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "Master")
+		RPST A 1 //bright
+		loop
+  	Green:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)!=1, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "Master")
+		GPST A 1 //bright
+		Loop
+  	Pills:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)!=2, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "Master")
+		PPST A 1 //bright
+		Loop
+	LBlue:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)!=3, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "Master")
+		LPST A 1 //bright
+		Loop
+	Pickup:
+		TNT1 A 0 A_GiveInventory("PowerStrength")
+		TNT1 A 0 HealThing(100, 0)
+		TNT1 A 0 A_SelectWeapon("PerkFist")
+		Stop
+	Master:
+		TNT1 A 0 A_SpawnItemEx("AMS_Berserk")
+		stop
+	}
+}
+
+////// DOOM 64 Berserk //////
+ACTOR AMS_D64BRZ : Berserk
+{
+	//+NOINTERACTION
+	states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)==1, "64Green")
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)==2, "64Pills")
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)==3, "64LBlue")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Master")
+		GoTo 64Red
+	64Red:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)!=0, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Master")
+		64BZ A 1 //bright
+		loop
+  	64Green:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)!=1, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Master")
+		64GZ A 1 //bright
+		Loop
+  	64Pills:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)!=2, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Master")
+		64PZ A 1 //bright
+		Loop
+	64LBlue:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 2)!=3, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Master")
+		64LZ A 1 //bright
+		Loop
+	Pickup:
+		TNT1 A 0 A_GiveInventory("PowerStrength")
+		TNT1 A 0 HealThing(100, 0)
+		TNT1 A 0 A_SelectWeapon("PerkFist")
+		Stop
+	Master:
+		TNT1 A 0 A_SpawnItemEx("AMS_Berserk")
+		stop
+	}
+}
