@@ -1,0 +1,107 @@
+////// Alternate Medical Symbols - Medikits //////
+
+////// Medikit - Base //////
+ACTOR AMS_Medikit : Medikit replaces Medikit
+{
+	States
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 ACS_NAMEDEXECUTE("SYMWorker")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "64Spawn")
+		RMED Z 2 /*bright*/ A_SpawnItemEx("AMS_1993Med")
+		stop
+	64Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Spawn")
+		64RM Z 2 /*bright*/ A_SpawnItemEx("AMS_D64Med")
+		stop
+	}
+}
+
+////// 1993 Medikit //////
+ACTOR AMS_1993Med : Medikit
+{
+	//+NOINTERACTION
+	states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)==1, "Green")
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)==2, "Pills")
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)==3, "LBlue")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "Master")
+		GoTo Red
+	Red:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)!=0, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "Master")
+		RMED A 1 //bright
+		loop
+  	Green:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)!=1, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "Master")
+		GMED A 1 //bright
+		Loop
+  	Pills:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)!=2, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "Master")
+		PMED A 1 //bright
+		Loop
+	LBlue:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)!=3, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "Master")
+		LMED A 1 //bright
+		Loop
+	Master:
+		TNT1 A 0 A_SpawnItemEx("AMS_Medikit")
+		stop
+	}
+}
+
+////// DOOM 64 Medikit //////
+ACTOR AMS_D64Med : Medikit
+{
+	//+NOINTERACTION
+	states
+	{
+	Spawn:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)==1, "64Green")
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)==2, "64Pills")
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)==3, "64LBlue")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Master")
+		GoTo 64Red
+	64Red:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)!=0, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Master")
+		64MD A 1 //bright
+		loop
+  	64Green:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)!=1, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Master")
+		64GM A 1 //bright
+		Loop
+  	64Pills:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)!=2, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Master")
+		64PM A 1 //bright
+		Loop
+	64LBlue:
+		TNT1 A 0
+		TNT1 A 0 A_JumpIf(CallACS("SYMOptions", 0)!=3, "Spawn")
+		TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==0, "Master")
+		64LM A 1 //bright
+		Loop
+	Master:
+		TNT1 A 0 A_SpawnItemEx("AMS_Medikit")
+		stop
+	}
+}
+
