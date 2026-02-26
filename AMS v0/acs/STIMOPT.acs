@@ -1,6 +1,0 @@
-// Stimpack sprite variant getter
-// Returns the current value of the "stmtoggle" CVar
-script "STIMOptions" (void)
-{
-    SetResultValue(GetUserCVar(0, "stmtoggle"));
-}
