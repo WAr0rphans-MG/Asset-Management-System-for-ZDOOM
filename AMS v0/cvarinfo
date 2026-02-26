@@ -1,6 +1,0 @@
-// User CVars for medical symbol variants
-// Values: 0=Standard Red, 1=Green Cross, 2=Pills, 3=Nightdive (DOOM 64 style)
-
-user int medtoggle = 0; // Medikit symbol variant (default: Standard Red)
-user int stmtoggle = 0; // Stimpack symbol variant (default: Standard Red)
-user int brztoggle = 0; // Berserk symbol variant (default: Standard Red)
