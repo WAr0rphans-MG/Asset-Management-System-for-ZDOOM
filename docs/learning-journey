@@ -1,0 +1,547 @@
+# Learning Journey
+
+*Code: W@r0rphans (2022-2026) | Documentation: Created February 2025 with Claude AI assistance*
+
+---
+
+## Overview
+
+This document explores the human side of building the Alternative Medical Symbol system: what it's like to learn programming from zero, strategies that worked (and didn't), dealing with failure, and breaking a 15-year pattern of unfinished projects.
+
+**Core thesis:** "Interest and purpose are the difference between 'I should learn this' (dies immediately) and 'I need to learn this to do X' (unstoppable)."
+
+---
+
+## Starting Point: Absolute Zero
+
+### August 2022 - What I Didn't Know
+
+**Programming experience:** None
+- Never written a line of code before
+- Didn't understand variables, loops, or functions
+- No concept of "logic flow" or "control structures"
+- Terms like "compiler" or "script" were meaningless
+
+**GZDoom knowledge:** Surface level
+- Played DOOM mods, knew they existed
+- Had no idea how they worked internally
+- Didn't know DECORATE, ACS, or ZScript existed
+- Never looked at mod source code
+
+**Technical skills:** Basic user level
+- Could use computers and install software
+- Understood file systems and folders
+- That was about it
+
+**What I DID have:**
+- Clear goal (merge two mods, customize sprites)
+- Intrinsic motivation (wanted this for myself, not external pressure)
+- Willingness to try things and fail
+- Interest in the problem space
+
+---
+
+## The Spark: A Simple Problem
+
+**Mid-August 2022:** Working on mod merger
+
+**The problem:** Want to replace green medical cross with red one
+
+**Traditional approach:** Manually rename sprite files, replace in PK3
+
+**The question:** "Is there a way to make this switchable without reloading?"
+
+**This question led to:**
+- Discovering other mods had variant systems
+- Finding DSD Remake's weapon routing code
+- Realizing "if weapons can switch, pickups can too"
+- Learning ACS existed and could be used for this
+
+**One simple question** cascaded into months of learning.
+
+---
+
+## Self-Teaching Strategy: Reverse Engineering
+
+### Primary Learning Method
+
+**Not tutorials or courses** - I learned by reading other people's code.
+
+**Process:**
+1. Find a mod that does something similar (DSD Remake weapon states)
+2. Decompile or extract the scripts
+3. Stare at it until patterns emerge
+4. Try to recreate the pattern for my use case
+5. Break things, fix them, repeat
+
+**Example: Learning ACS**
+
+**Found in DSD Remake:**
+```c
+script "WeaponCheck" (void)
+{
+    if (GetCVar("GloveToggle")==1)
+    {
+        // Do something
+    }
+}
+My understanding:
+"script" = thing that runs
+"void" = ??? (ignored it, copied it)
+GetCVar = get a value from menu
+if = only do thing when condition true
+Copied pattern for pickups:
+script "MEDOptions" (void)
+{
+    SetResultValue(GetCVar("medtoggle"));
+}
+Did it work? Yes!
+Did I understand WHY? Not really!
+But that was fine - understanding came through repetition and experimentation.
+Pattern Matching Across Mods
+Learning happened through synthesis:
+From DSD Remake:
+Real-time routing (Loop state pattern)
+CVar integration (menu → code connection)
+Weapon state flow (how actors transition)
+From RVDoomVox:
+Symbol actor separation (visual vs functional)
+Voxel integration patterns
+Sprite replacement techniques
+Combined into something new:
+Real-time pickup routing (DSD pattern + RVDoomVox separation)
+Medical symbol system (synthesis, not just copy)
+This is how self-teaching works - steal from everywhere, combine creatively.
+Trial and Error Development
+v0 development (4 weeks):
+Wrote code
+Compiled
+Loaded in game
+Broke
+Fixed
+Repeat 1000x
+No debugger, no error messages I understood - just "it works" or "it doesn't work"
+Debugging method:
+Comment out sections
+See what still works
+Narrow down the problem
+Google error messages (rarely helped)
+Try variations until something worked
+This was SLOW but EFFECTIVE - each failure taught something.
+Key Learning Moments
+Understanding Flow Control (v1-v2)
+The problem: Nested conditions that made no sense
+If(Preset == 0)
+{
+    If(Preset == 1)  // This can never be true!
+    {
+        // ...
+    }
+}
+I wrote this code - multiple times, in different versions!
+Why? Didn't understand that inner conditions are constrained by outer conditions.
+How I learned:
+Mentally traced execution ("if Preset is 0, how can it also be 1?")
+Drew diagrams on paper
+Talked through it out loud
+Eventually: "Oh. OH. I'm an idiot."
+This took DAYS to internalize - not because the concept is hard, but because I had zero foundation.
+The "Do Nothing" Pattern (v1-v2)
+The problem: In custom mode, wanted to preserve CVar values (not change them)
+What I thought: "Need to tell the script to not do anything"
+What I tried:
+SetResultValue(GetCVar("medtoggle"));  // "Do nothing" by returning value
+Why I thought this: Didn't understand that "doing nothing" = literally write nothing
+The actual solution:
+else if (Master == 1)
+{
+    // Just leave it blank - that's doing nothing!
+}
+Why this was hard: Coming from zero programming, "don't write code" isn't intuitive.
+You assume there must be SOMETHING to write - the idea that absence of code IS code takes adjustment.
+Delay and Restart (v2)
+The discovery: Scripts can loop forever!
+Before v2:
+script "SYMPreset" (void)
+{
+    // Runs once when called
+}
+After v2:
+script "SYMPreset" OPEN
+{
+    while (TRUE)
+    {
+        // Logic here
+        Delay(1);
+    }
+    // Alternatively:
+    Delay(1);
+    Restart;  // Loop forever!
+}
+Mind = blown - scripts could be self-sustaining!
+This opened up continuous checking patterns - huge architectural shift.
+Variables for Readability (v1-successful)
+Before:
+If(GetUserCVar(0, "pretoggle") == 0 && GetUserCVar(0, "asmtoggle") == 0)
+{
+    SetUserCVar(0, "medtoggle", 0);
+}
+After:
+int Preset = GetUserCVar(0, "pretoggle");
+int Master = GetUserCVar(0, "asmtoggle");
+
+If(Preset == 0 && Master == 0)
+{
+    SetUserCVar(0, "medtoggle", 0);
+}
+Why this mattered: Code became READABLE
+Could actually see what I was checking instead of parsing function calls.
+This seems obvious - but when you're learning, obvious things aren't obvious.
+The Router + Worker Insight (v3-alpha)
+The breakthrough: Separation of concerns
+After 10 days of failed attempts (v1, v2, v3), suddenly saw the pattern:
+"What if one script DECIDES which worker to call, and workers handle their own logic?"
+This clicked because:
+Seen similar patterns in decompiled code (state machines)
+Had tried everything else already (exhausted alternatives)
+Drew diagrams showing execution flow (visual thinking)
+The moment of understanding felt like:
+Everything falling into place
+"This is obviously the right way"
+"Why didn't I see this before?"
+But I couldn't have seen it before - needed the failed attempts to understand what DIDN'T work.
+Dealing with Failure
+The v1-v2 Struggle
+10 days of iteration (Oct 17-27):
+v1 attempt 1: Failed (reason unclear)
+v1 attempt 2: Failed (flow control issues)
+v1-successful: Worked but limited (no overlap)
+v2 attempt 1: Failed (logic errors)
+v2 attempt 2: Failed (more logic errors)
+v2 attempt 3: Failed (nested condition bugs)
+v3 attempt: Failed (consolidation didn't work)
+v3a attempts: Failed, failed, SUCCESS!
+Emotional journey:
+Days 1-3: Excited, confident ("I'll figure this out")
+Days 4-6: Frustrated ("Why isn't this working?")
+Days 7-8: Defeated ("Maybe I can't do this")
+Days 9-10: Desperate ("Try EVERYTHING")
+Day 10: BREAKTHROUGH ("IT WORKS!")
+What kept me going:
+v0 had worked (proof I could do it)
+Clear goal (restore button override behavior)
+No external pressure (just for myself)
+Sunk cost ("I've already spent a week on this...")
+The pattern: Push through frustration → exhaustive search → sudden clarity
+Accepting Uncertainty
+Looking back at v1 attempt 1 code:
+"I don't know why this failed. The logic looks sound. Something broke, I moved on."
+This was HARD to accept - wanting to understand every failure.
+But sometimes:
+Code doesn't work for unclear reasons
+Move on and try something else
+Understanding can come later (or never)
+That's okay
+Learning to be okay with uncertainty is part of learning programming.
+The 3-Year Gap
+Why I Stopped (October 2022)
+v3-alpha worked perfectly - problem solved!
+So why stop?
+No immediate next goal (what comes after solving the problem?)
+Burnout from 10-day sprint
+Broader mod still incomplete (overwhelming scope)
+Pattern of "start but don't finish" kicked in
+15-year pattern: Get thing working → lose momentum → abandon
+Classic self-taught trap: Solve the interesting problem, lose interest in polish/release.
+Why I Returned (December 2025)
+What changed:
+Clear external deadline (Feb 28, 2026)
+Different goal (document and release, not build new features)
+AI assistance available (reduced friction for refinement)
+Realization: This could be portfolio piece
+Motivation: Break the 15-year pattern
+Key insight: The code was DONE in 2022. Documentation makes it REAL.
+Modern Development: AI Collaboration
+v5 Development with Copilot (December 2025)
+Different learning approach:
+2022 (v0-v3a):
+Learn through reverse-engineering
+Trial and error
+Slow iteration
+Pure self-discovery
+2025 (v4-v5):
+Describe requirements to AI
+AI generates scaffolding
+I debug through conversation
+Rapid iteration
+How AI Collaboration Worked
+My role:
+"Here's the problem v4 has (repetitive workers)"
+"I want unified architecture with state tracking"
+"This initialization bug would override custom setups"
+"We don't need arrays, preset value IS the value"
+AI role:
+Generated initial code structure
+Proposed patterns (arrays, loops)
+Refined based on feedback
+Produced working code quickly
+Not "AI did it for me" - collaborative problem-solving:
+I understood the problem (from v1-v4 experience)
+AI knew ZScript/ACS syntax better
+I guided architectural direction
+AI accelerated implementation
+Result: Hours instead of days for similar complexity
+Why AI Worked for v5 but Wouldn't Have for v0
+v5 success required:
+Clear problem definition (knew WHAT I wanted)
+Domain knowledge (understood GZDoom systems)
+Debugging ability (could analyze AI output)
+Architectural thinking (could guide refinement)
+All from v0-v4 struggles!
+If I'd tried AI-assisted v0:
+Wouldn't know what to ask for
+Couldn't debug generated code
+Wouldn't understand architecture
+Would be copying blindly
+AI accelerates when you know the domain - can't replace foundational learning.
+Mental Debugging (v5)
+New skill developed:
+2022 debugging:
+Write code → compile → test → see what breaks → fix → repeat
+Physical execution required
+2025 debugging:
+Read code → trace execution mentally → spot issue → describe to AI → refine
+No compilation needed for many bugs
+Example:
+if (LastPreset == -1) LastPreset = Preset;  // First run
+
+// ME: "Wait, this will override custom setups on first load"
+// COPILOT: "You're right, we should check Master mode first"
+// ME: "Actually, just initialize to current Preset - safe in all cases"
+Caught bug through reasoning, not execution.
+This is advanced debugging - couldn't do this without experience.
+What Actually Worked for Learning
+Driven Learning Formula
+The combination that worked:
+Clear personal goal ("I want switchable medical symbols")
+Immediate feedback loop (compile → test → see results)
+Intrinsic motivation (self-chosen project, not external requirement)
+Real constraints (limited documentation forced creative solutions)
+Tolerance for failure (okay with things not working)
+Pattern recognition (stealing from existing code)
+What DIDN'T work:
+Reading documentation (too abstract without context)
+Watching tutorials (too passive, forgot immediately)
+Trying to "learn programming first" (no motivation without goal)
+The secret: Learn WHILE DOING, not BEFORE DOING
+The Interest-Driven Principle
+Quote from me:
+"Self-teaching and learning in general only ever work when the person being taught or searching finds interest or purpose in what they are learning, if not it's just dead air"
+Why this project succeeded:
+Wanted it for myself (intrinsic)
+Saw immediate results (feedback)
+Had creative freedom (no external specs)
+Could stop anytime (no pressure)
+Contrast with school/courses:
+Learn "because you should"
+Delayed application
+Fixed curriculum
+External deadlines
+I couldn't have learned this in a course - needed the freedom to explore and fail.
+Iterative Understanding
+Learning wasn't linear:
+v0: "I have no idea what I'm doing but it works"
+v1: "I understand getters but not flow control"
+v2: "I understand flow control but not separation of concerns"
+v3a: "I understand separation of concerns!"
+v4: "I understand DRY principle"
+v5: "I understand state management"
+Each version added ONE concept - couldn't skip steps.
+Trying to jump to v5 architecture in August 2022: Impossible, no foundation.
+The struggles were necessary - each failure built understanding.
+Breaking the 15-Year Pattern
+The Pattern
+1990s-2022: Started hundreds of projects
+Got them working
+Lost momentum
+Never finished/documented/released
+Pattern repeated for 15 years
+Why?
+Solving the problem = dopamine hit
+Polish/documentation = boring
+No external accountability
+"I'll finish it later" (never happened)
+What Changed in 2026
+Different approach:
+Not building new features - code was done in 2022
+Goal: Document and ship - different challenge
+External accountability:
+Deadline (Feb 28)
+AI collaboration (someone "watching")
+Portfolio motivation (external audience)
+Reframing success:
+Success = shipping documentation, not perfect code
+Done > perfect
+Public > private
+The Documentation Mindset
+Shift in thinking:
+Before: "It works for me, that's enough"
+Now: "Can someone else understand this?"
+Writing documentation forced:
+Understanding my own decisions
+Organizing scattered knowledge
+Confronting gaps and failures
+Making implicit explicit
+Documentation wasn't burden - it was THINKING TOOL
+Feb 28 as Forcing Function
+Why the deadline matters:
+Without deadline:
+"I'll add just one more feature..."
+"Let me refine this a bit more..."
+"Maybe v6 should be included..."
+= Never ships
+With deadline:
+"Is this needed for Feb 28? No? Later."
+"Good enough ships, perfect doesn't"
+= Actually ships
+The deadline isn't arbitrary - it's protection against perfectionism.
+Meta-Lessons
+On Self-Teaching
+You don't need formal education to learn technical skills.
+What you need:
+Clear goal (purpose)
+Interest in domain (motivation)
+Tolerance for failure (resilience)
+Access to examples (resources)
+Time and persistence (commitment)
+But also:
+Understanding that learning is nonlinear
+Accepting that failures are progress
+Knowing when to ask for help
+Recognizing when you're stuck vs learning
+On AI as Learning Tool
+AI works best when:
+You know what to ask
+You can evaluate output
+You guide refinement
+You understand domain
+AI fails when:
+No foundation to build on
+Blind copying without understanding
+Can't debug generated code
+Treating as magic solution
+AI is accelerator, not replacement - for learning or for development.
+On Finishing Projects
+The hard part isn't building - it's shipping.
+Strategies that worked:
+External deadline (accountability)
+Redefine success (documentation, not perfection)
+Separate "done" from "perfect" (good enough ships)
+Break pattern consciously (acknowledge 15-year history)
+The code was done in 2022. Documentation made it real in 2026.
+Sometimes finishing is just deciding to stop.
+On Documentation Value
+Documentation serves multiple purposes:
+For others:
+Learning resource
+Reference implementation
+Proof of capability
+For self:
+Understanding own work
+Organizing knowledge
+Closure on project
+The act of documenting = final learning phase
+Explaining teaches better than doing - you don't fully understand until you can explain.
+Advice for Others Learning GZDoom Modding
+Start Small
+Don't try to build complex systems first.
+Start with:
+Simple sprite replacement
+Basic CVar toggle
+One actor modification
+Build up from there.
+My project started simple ("replace green cross with red") and grew naturally.
+Steal Shamelessly
+Don't try to invent everything.
+Find mods that do similar things:
+Extract their code
+Study the patterns
+Adapt to your needs
+This isn't cheating - it's learning from examples.
+All my patterns came from somewhere else (DSD Remake, RVDoomVox, etc.)
+Fail Forward
+Every broken version teaches something.
+v1-v2 "failures" taught:
+Flow control
+Execution models
+Architectural patterns
+Couldn't have reached v3a without them.
+Don't be afraid to try things that might not work - that's how learning happens.
+Use Modern Tools
+AI assistance is valuable IF:
+You have some foundation (know what to ask)
+You can debug output (understand generated code)
+You guide refinement (architectural direction)
+But don't skip foundational learning - build something from scratch first.
+Document as You Go
+Don't wait to finish before documenting.
+I wish I'd documented during 2022:
+Why certain decisions were made
+What alternatives were tried
+What problems were encountered
+Had to reconstruct from file dates and memory - much harder.
+Write notes during development - future you will thank you.
+Have a Goal Beyond Learning
+"Learn GZDoom modding" is weak motivation.
+"Make switchable medical symbols" is strong motivation.
+The goal drives the learning - not the other way around.
+Find something you WANT to make, then learn what's needed to make it.
+Accept That You'll Never "Finish" Learning
+Even after 3+ years:
+Still learning new patterns
+Still discovering better approaches
+Still finding gaps in knowledge
+That's fine!
+You don't need to know everything to build something useful.
+Ship what you have, learn more later.
+Looking Forward
+What I Still Want to Learn
+ZScript deeply:
+Object-oriented patterns
+Event-driven architecture
+Data module systems
+Modern GZDoom practices:
+Best practices evolution
+Community standards
+Performance optimization
+Not urgent - will learn when needed for v6/Lite.
+Continuing the Pattern
+Post-Feb 28:
+v5 refinements (indexed getter, etc.)
+Code commenting pass
+Potential v6/Lite exploration
+But no rush - deadline met, pattern broken, rest is bonus.
+The Long Game
+This isn't about becoming a professional programmer.
+It's about:
+Proving I can learn hard things
+Building something I'm proud of
+Sharing knowledge with community
+Breaking personal patterns
+The code is the vehicle - the learning is the destination.
+Conclusion
+I started with zero programming knowledge in August 2022.
+Six weeks of active work later (spread across 3.5 years), I have:
+Working system across multiple versions
+Understanding of architectural patterns
+Ability to collaborate with AI effectively
+Completed documentation (breaking 15-year pattern)
+Portfolio piece demonstrating learning ability
+The technical skills matter - but the meta-skill of "figure it out" matters more.
+That's what this project proves:
+Not that I can code (barely).
+That I can LEARN to code - and document the journey honestly.
+And maybe that's more valuable.
+This learning journey is mine, but the patterns are universal. If you're learning something hard, I hope seeing my struggles helps you push through yours.
+You don't need to know everything to start. You just need to start.
+Ship it.
