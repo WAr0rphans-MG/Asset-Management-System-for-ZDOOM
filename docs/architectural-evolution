@@ -1,1 +1,713 @@
-testing
+# Architecture Evolution
+
+*Code: W@r0rphans (2022-2026) | Documentation: Created February 2025 with Claude AI assistance*
+
+---
+
+## Overview
+
+This document traces the technical progression of the Alternative Medical Symbol system's architecture across five major versions, examining design decisions, pattern discoveries, scalability improvements, and lessons learned.
+
+**Core insight:** v0 was functionally complete. Everything after was chasing elegance, scalability, and architectural clarity.
+
+---
+
+## The Fundamental Challenge
+
+**Problem:** Enable real-time sprite customization for health pickups without level reload.
+
+**Traditional approach (static):**
+```cpp
+Spawn:
+    RMED A -1  // Red medikit sprite, frozen forever
+    stop
+Our requirement (dynamic):
+User changes menu → sprite updates immediately
+No level reload required
+Support preset modes (all items match) AND custom mode (individual choices)
+Preset changes should work even in custom mode (override/quick-set)
+This last requirement drove most of the architectural complexity from v1-v3a.
+v0: Discovery and Foundation (September 2022)
+The Pattern Discovery
+Learned from: Delashin's Smooth Doom Remake weapon states
+DSD Remake weapons:
+// Weapons checked CVars every tic for attachment states
+Spawn:
+    TNT1 A 0 A_JumpIf(GloveToggle==1, "Gloves")
+    TNT1 A 0 A_JumpIf(64Shotgun==1, "DOOM64")
+    SHTG A 1
+    Loop  // Check again next frame!
+The insight: If weapons can check every frame, pickups can too!
+Adapted for pickups:
+Spawn:
+    TNT1 A 0 A_JumpIf(CallACS("MEDOptions")==1, "Green")
+    TNT1 A 0 A_JumpIf(CallACS("MEDOptions")==2, "Pills")
+    RMED A 1  // Red sprite
+    Loop  // Continuous checking = real-time updates
+This was the breakthrough - real-time routing via continuous checking.
+v0 Architecture
+ACS Layer:
+// Simple getter - returns CVar value to DECORATE
+script "MEDOptions" (void)
+{
+    SetResultValue(GetUserCVar(0, "medtoggle"));
+}
+DECORATE Layer:
+ACTOR NewMedikit : Medikit replaces Medikit
+{
+    Spawn:
+        TNT1 A 0 A_JumpIf(CallACS("MEDOptions")==1, "Green")
+        RMED A 1
+        Loop
+    Green:
+        GMED A 1
+        Loop
+}
+Menu Layer (KEYCONF):
+// Button aliases set all CVars at once
+alias Standard_Red "medtoggle 0; stmtoggle 0; brztoggle 0"
+alias Green_Cross "medtoggle 1; stmtoggle 1; brztoggle 1"
+What worked:
+✅ Real-time updates (no reload needed)
+✅ Button presets simple and functional
+✅ Individual customization available
+✅ Buttons worked in both modes (override behavior)
+Limitations identified (in hindsight):
+Buttons inconsistent with rest of menu UI (visual inconsistency)
+Adding 4th preset = update all button aliases
+No separation between preset selection and mode toggle
+But it worked perfectly! This is important: v0 solved the problem.
+The Stop-Based Predecessor (Reconstructed)
+Likely existed before real-time discovery:
+Spawn:
+    TNT1 A 0 A_JumpIf(CallACS("MEDOptions")==1, "Green")
+    RMED A -1  // Infinite duration
+    stop       // Never checks again
+Why it didn't work:
+Sprite set on spawn, never updates
+Changing menu has no effect until level reload
+Files overwritten, but this was probably the initial approach before discovering the Loop pattern.
+v1: The UX Redesign (October 2022)
+Design Goal
+Problem to solve: Buttons look inconsistent with dropdown-based menu options
+Solution: Replace buttons with dropdowns
+What this required:
+Master toggle dropdown (Preset vs Custom mode)
+Preset selector dropdown (which preset)
+Individual item dropdowns (medtoggle, stmtoggle, brztoggle)
+The architectural challenge: Make dropdowns work like buttons did.
+v1 Attempt 1: Smart Getters
+Concept: Make getters check mode and return appropriate value
+script "MEDOptions" (void)
+{
+    if (GetCVar("asmtoggle")==1)  // Custom mode
+        SetResultValue(GetCVar("medtoggle"));
+    else  // Preset mode
+        SetResultValue(GetCVar("pretoggle"));
+}
+Why this seemed right:
+Getters already called by DECORATE
+Just make them "smart" about which value to return
+Minimal change to existing pattern
+Why it failed (probably):
+Name collision with old getters in LOADACS
+Or missing execution framework (how to call it)
+Or something else lost to time
+Lesson: Elegant idea, but execution unclear. Good logic doesn't guarantee working code.
+v1 Attempt 2: Central Preset Script
+Concept: One script manages all preset logic
+script "SYMPreset" (void)
+{
+    if (GetCVar("pretoggle") == 0)
+    {
+        SetCVar("medtoggle", 0);
+        SetCVar("stmtoggle", 0);
+        SetCVar("brztoggle", 0);
+    }
+    // ... more presets
+    
+    // Attempted "do nothing" for custom mode
+    Else If (GetCVar("asmtoggle") == 1)
+    {
+        SetResultValue(GetCVar("medtoggle"));  // "Do nothing" pattern
+    }
+}
+Problems:
+Three identical conditions (all checking asmtoggle==1) - only first executes
+SetResultValue used as "do nothing" (not understanding that doing nothing = don't write anything)
+No entry point (script never runs)
+Variables declared but never used
+What it shows: Struggling with flow control and execution models.
+Lesson: Understanding WHAT you want doesn't mean understanding HOW to express it.
+v1-successful: The Breakthrough
+Preserved in v2 comments:
+script "SYMPreset" (void)
+{
+    int Preset = GetUserCVar(0, "pretoggle");
+    int Master = GetUserCVar(0, "asmtoggle");
+    
+    If(Preset == 0 && Master == 0)  // Preset mode, Red
+    {
+        SetUserCVar(0, "medtoggle", 0);
+        SetUserCVar(0, "stmtoggle", 0);
+        SetUserCVar(0, "brztoggle", 0);
+    }
+    // ... more presets
+    
+    Else If (Master == 1)  // Custom mode
+    {
+        // Do nothing (CVars stay as user set them)
+        SetResultValue(GetUserCVar(0, "medtoggle"));
+    }
+}
+What worked:
+✅ Compound conditions (Preset==X && Master==Y)
+✅ Variables for readability
+✅ GetUserCVar vs GetCVar distinction
+✅ Preset mode sets all CVars correctly
+✅ Custom mode preserves individual choices
+What was lost:
+❌ No overlap - changing pretoggle in custom mode does nothing
+❌ v0's button override behavior gone
+Why this matters:
+In v0: Buttons worked in both modes (quick preset changes anytime)
+In v1: Preset dropdown only works in preset mode
+This limitation drove v2-v3 development.
+v2: Chasing the Overlap (October 2022)
+The Overlap Problem
+User expectation:
+In custom mode with mixed symbols (Red medikit, Green stimpack, Pills berserk)
+Change preset dropdown to "Green Cross"
+All items should update to green (quick-set behavior)
+v1-successful behavior:
+Preset dropdown change does nothing in custom mode
+Must manually change each individual dropdown
+Goal: Restore v0's override behavior with v1's dropdown UI.
+v2 Attempts (October 24-26)
+Multiple approaches tried:
+Dual-script system (final v2):
+script "SYMPreset" OPEN  // Main loop
+{
+    if (Master == 0) { /* preset mode */ }
+    else if (Master == 1) { ACS_NamedExecute("SYMCustomPreset"); }
+    
+    Delay(1);
+    Restart;
+}
+
+script "SYMCustomPreset" (void)
+{
+    // Attempted: Check preset value in custom mode
+    // If changed, update CVars
+    // BUT: Broken nested logic (unreachable branches)
+}
+What was learned:
+Delay + Restart creates continuous loop
+Scripts can call other scripts
+But nested conditions were broken (checking Preset==1 inside Preset==0 block)
+The persistent bug: Trying to check all preset values inside branches that already filtered by preset value.
+Why this kept happening: Not fully understanding control flow and scope.
+v3: Parallel Experimentation (October 24, 2022)
+The Exhaustive Search
+Same day as v2 attempts, multiple architectural explorations:
+v3: Consolidation attempt
+v3b: Refinement
+v3b1: Further refinement
+v3a (attempt 1): Router concept
+v3a (attempt 2): Worker concept
+All failed, but building toward insight.
+What this shows: Sometimes you don't iterate linearly. You try EVERYTHING until something clicks.
+v3-alpha: The Breakthrough (October 27, 2022)
+Router + Worker Pattern
+The insight: Separate routing from logic execution.
+Architecture:
+// Router: Decides which worker to call
+script "SYMPreset" OPEN
+{
+    int Preset = GetUserCVar(0, "pretoggle");
+    
+    if (Preset == 0) ACS_NamedExecute("SYMRed");
+    else if (Preset == 1) ACS_NamedExecute("SYMGreen");
+    else if (Preset == 2) ACS_NamedExecute("SYMPills");
+    
+    Delay(1);
+    Restart;
+}
+
+// Worker: Handles one preset's logic
+script "SYMRed" (void)
+{
+    int Master = GetUserCVar(0, "asmtoggle");
+    int Preset = GetUserCVar(0, "pretoggle");
+    
+    if (Master == 0)  // Preset mode
+    {
+        SetUserCVar(0, "medtoggle", 0);
+        SetUserCVar(0, "stmtoggle", 0);
+        SetUserCVar(0, "brztoggle", 0);
+    }
+    else if (Preset == 0 && Master == 1)  // Custom mode, Red preset
+    {
+        // Do nothing (preserve custom values)
+    }
+    else if (Preset == 1 && Master == 1)  // Custom mode, changed to Green
+    {
+        SetUserCVar(0, "medtoggle", 1);  // Quick-set to green!
+        SetUserCVar(0, "stmtoggle", 1);
+        SetUserCVar(0, "brztoggle", 1);
+    }
+    // etc for other presets
+}
+Why this works:
+Preset mode (Master == 0):
+Router calls worker for current preset
+Worker sets all CVars to preset value
+✅ Works
+Custom mode, preset unchanged (Preset == 0, Master == 1):
+Router calls SYMRed (preset is 0)
+SYMRed sees "custom mode, Red preset" → do nothing
+✅ Preserves custom values
+Custom mode, preset changed (Preset == 1, Master == 1):
+Router calls SYMGreen (preset is 1)
+SYMGreen sees "custom mode, Green preset" → set all to green
+✅ Quick-set behavior restored!
+The breakthrough: Each worker knows about ALL presets and handles its own overlap logic.
+After 10 days of iteration (Oct 17-27), the problem was solved! ✨
+Why This Took So Long
+The conceptual leap:
+v1-v2: Thought in terms of "check preset, then check mode"
+v3a: Thought in terms of "route to handler, handler checks everything"
+Separation of concerns:
+Router: "Which worker should run?"
+Worker: "What should I do given the current state?"
+This is a fundamental software architecture pattern - took 10 days to discover through trial and error.
+v4: Consolidation (December 2025)
+The Return
+After 3 years, returned to working v3-alpha code.
+Immediate observation: Worker logic is repetitive.
+v3-alpha workers:
+script "SYMRed" (void)
+{
+    // ... logic
+    Else If(Preset == 1 && Master == 1) { Set to 1 }
+    Else If(Preset == 2 && Master == 1) { Set to 2 }
+    Else If(Preset == 3 && Master == 1) { Set to 3 }
+}
+Problem: Hardcoded checks for each "other preset"
+Adding 4th preset = update all workers with new condition
+v4 Consolidation
+The insight: Use inequality instead of equality.
+script "SYMRed" (void)
+{
+    if (Master == 0)  // Preset mode
+    {
+        SetUserCVar(0, "medtoggle", 0);
+        SetUserCVar(0, "stmtoggle", 0);
+        SetUserCVar(0, "brztoggle", 0);
+    }
+    else if (Preset == 0 && Master == 1)  // Custom mode, same preset
+    {
+        // Do nothing
+    }
+    else if (Preset != 0 && Master == 1)  // Custom mode, different preset
+    {
+        // Quick-set to whatever Preset value is!
+        SetUserCVar(0, "medtoggle", Preset);
+        SetUserCVar(0, "stmtoggle", Preset);
+        SetUserCVar(0, "brztoggle", Preset);
+    }
+}
+Benefits:
+Adding 5th preset = no code changes (just need router update)
+DRY principle (Don't Repeat Yourself)
+Data-driven instead of hardcoded
+Status: Verified functional, never actively used (v5 completed minutes later)
+v4b Concept: Optimization
+The idea: Move loop from router to workers.
+v4 pattern:
+Router loops continuously (calls workers every tic)
+Workers execute and return
+v4b concept:
+Router runs once (calls worker)
+Worker loops and self-terminates when invalid
+Benefits:
+Router overhead reduced (only runs when needed)
+Workers manage own lifecycle
+Status: Conceptual only, never implemented or tested
+Could also apply to v3-alpha as "v3b" - optimization compatible with multiple architectures
+v5: Unified Architecture (December 2025)
+Collaboration with AI
+Development process:
+Explained v4's limitations to Microsoft Copilot
+Requested unified worker architecture
+Copilot generated code with arrays and detection logic
+Debugged through conversation (mental/logical analysis)
+Identified issues, guided refinements
+Final optimization (removed unnecessary arrays)
+Key iterations:
+Copilot Initial:
+int presetArray[4] = {0, 1, 2, 3};  // Array of preset values
+int lastPreset = -1;
+
+// Check if preset changed
+for (int i = 0; i < 4; i++)
+{
+    if (Preset == presetArray[i] && Preset != lastPreset)
+    {
+        // Update
+    }
+}
+My insight: "Wait, preset value IS the value. We don't need an array!"
+Final v5:
+int LastPreset = -1;  // Global state memory
+
+script "SYMWorker" (void)
+{
+    int Preset = GetUserCVar(0, "pretoggle");
+    int Master = GetUserCVar(0, "asmtoggle");
+    
+    // Initialize on first run
+    if (LastPreset == -1) LastPreset = Preset;
+    
+    // Preset mode
+    if (Master == 0)
+    {
+        SetUserCVar(0, "medtoggle", Preset);
+        SetUserCVar(0, "stmtoggle", Preset);
+        SetUserCVar(0, "brztoggle", Preset);
+    }
+    // Custom mode, preset unchanged
+    else if (Master == 1 && Preset == LastPreset)
+    {
+        // Do nothing
+    }
+    // Custom mode, preset changed (quick-set)
+    else if (Master == 1 && Preset != LastPreset)
+    {
+        SetUserCVar(0, "medtoggle", Preset);
+        SetUserCVar(0, "stmtoggle", Preset);
+        SetUserCVar(0, "brztoggle", Preset);
+    }
+    
+    // Update memory
+    LastPreset = Preset;
+}
+The State Memory Pattern
+What makes v5 elegant:
+No hardcoded workers - one script handles all presets
+State tracking:
+Remembers previous preset value
+Detects when it changes
+Acts accordingly
+Data-driven:
+Works for unlimited preset values (0-99+)
+Adding preset = change dropdown values, no code changes
+Fully scalable architecture - this is as clean as ACS can get.
+AI Collaboration Insights
+What AI provided:
+Initial architectural scaffolding
+Pattern suggestions (arrays, loops)
+Code generation speed
+What I provided:
+Domain knowledge (GZDoom specifics)
+Problem requirements (from v4 experience)
+Debugging insights (mental analysis)
+Optimization direction (remove arrays)
+The collaboration:
+AI accelerated exploration
+I debugged by reasoning (not execution)
+Final solution emerged through iteration
+Time investment: Under 1 hour from concept to working code
+Compared to v1-v3a: 10 days to solve similar complexity
+The difference: Experience + AI assistance = massive acceleration
+DECORATE Evolution
+v0-v4: Stable Real-Time Pattern
+Pattern discovered in v0, unchanged through v4:
+Spawn:
+    TNT1 A 0 ACS_NAMEDEXECUTE("SYMWorker")  // Optional engine call
+    TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==1, "Green")
+    TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==2, "Pills")
+    RSTM A 1  // Display sprite
+    Loop      // Check again next frame
+Green:
+    GSTM A 1
+    Loop
+Why it stayed stable:
+Pattern worked perfectly from day one
+Real-time updates via continuous checking
+No need to change while ACS logic evolved
+Lesson: When you find a pattern that works, stick with it!
+v5 First Refactor: Factory + Color Variants
+Problem to solve: Scalability - adding 4th preset (Nightdive) requires code changes across all actors.
+Solution: Separate master from variants.
+ACTOR AMS_Stimpack : Stimpack replaces Stimpack  // Master factory
+{
+    Spawn:
+        TNT1 A 0 ACS_NAMEDEXECUTE("SYMWorker")
+        TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==1, "Green")
+        TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==2, "Pills")
+        TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==3, "LBlue")
+        RSTM Z 2 A_SpawnItemEx("AMS_RedStim")
+        stop
+    // ... more spawn states
+}
+
+ACTOR AMS_RedStim : Stimpack  // Variant (the actual pickup)
+{
+    Spawn:
+        TNT1 A 0 A_JumpIf(CallACS("STIMOptions")!=0, "Master")  // Still correct?
+        RSTM A 1
+        loop
+    Master:
+        TNT1 A 0 A_SpawnItemEx("AMS_Stimpack")  // Re-route if changed
+        stop
+}
+Why variants inherit from Stimpack:
+Variant is the actual pickup (needs pickup behavior)
+Master disappears after routing
+Player picks up variant, not master
+Benefits:
+Adding 5th color = 1 new variant actor
+Master routing centralized
+Variants self-validate (check if still correct)
+v5 Second Refactor: Factory + Style Variants
+Further optimization: Separate by STYLE instead of COLOR.
+ACTOR AMS_Stimpack : Stimpack replaces Stimpack  // Master
+{
+    Spawn:
+        TNT1 A 0 A_JumpIf(CallACS("64StylePickups")==1, "64Spawn")
+        RSTM Z 2 A_SpawnItemEx("AMS_1993Stim")  // Spawn 1993 style
+        stop
+    64Spawn:
+        64ST Z 2 A_SpawnItemEx("AMS_D64Stim")  // Spawn D64 style
+        stop
+}
+
+ACTOR AMS_1993Stim : Stimpack  // Style actor handles color routing
+{
+    Spawn:
+        TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==1, "Green")
+        TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==2, "Pills")
+        TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==3, "LBlue")
+        RSTM A 1  // Red 1993
+        loop
+    Green:
+        GSTM A 1  // Green 1993
+        loop
+    // etc
+}
+Two-tier routing:
+Master routes by style (2 options)
+Style routes by color (4 options)
+Benefits over first refactor:
+First refactor: 4 colors × 2 styles = 8 variant actors needed
+Second refactor: 2 style actors (each handling 4 colors internally)
+Separation of concerns (style vs color)
+Scales better (add new style = 1 actor, not 4)
+This is the optimal DECORATE pattern - best achievable without ZScript.
+DECORATE Optimization (Planned)
+Further refinement:
+Move ACS calls to Spawn only, variant states just display:
+Spawn:
+    TNT1 A 0 ACS_NAMEDEXECUTE("SYMWorker")  // Call once
+    TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==1, "Green")
+    TNT1 A 0 A_JumpIf(CallACS("STIMOptions")==3, "LBlue")
+    Goto Red
+Red:
+    RSTM A 1  // Just display, no ACS
+    Loop
+Green:
+    GSTM A 1  // Just display
+    Loop
+Benefits:
+ACS overhead reduced (calls in routing only)
+Variant states cleaner (display only)
+Separation: routing logic vs display logic
+Status: Mentally designed, not yet implemented
+ZScript Integration (January 2026)
+Moving Beyond DECORATE Limitations
+What ZScript enables:
+Event-driven execution (not continuous loops)
+Object-oriented architecture
+Modern GZDoom practices
+AMSOptionsMenu: Live Preview
+Problem: v0-v4 changes don't apply until menu closes (script execution paused during menu).
+ZScript solution:
+class AMSOptionsMenu : OptionMenu
+{
+    int lastPreset;
+    
+    override void Ticker()  // Runs DURING menu
+    {
+        int preset = CVar.GetCVar("pretoggle", ...).GetInt();
+        
+        if (preset != lastPreset || custom == 0)
+        {
+            CallACS("SYMWorker", 0);  // Update immediately
+            lastPreset = preset;
+            Init(mParentMenu, mDesc);  // Refresh display
+        }
+    }
+}
+What this achieves:
+Changes apply while menu open
+Can see sprite updates in real-time behind menu
+Ticker override runs during menu interaction
+UX improvement: Immediate feedback instead of close-and-check.
+AMSArmorHandler: Event-Driven Tracking
+Problem: v1-v4 ArmorID loops every tic checking armor class (~100+ lines, constant overhead).
+ZScript solution:
+class AMSArmorHandler : StaticEventHandler
+{
+    override void WorldTick()  // Automatic execution
+    {
+        for (int i = 0; i < MAXPLAYERS; i++)
+        {
+            if (playeringame[i])
+                UpdateArmorTokens(players[i].mo);
+        }
+    }
+    
+    void UpdateArmorTokens(Actor p)
+    {
+        // Check armor PROPERTIES (not hardcoded names)
+        if (max == 200 && perc ≈ 0.50)
+            activeToken = "AMS_ArmorID_Blue";
+        else if (max == 100 && perc ≈ 0.33 && amt >= 100)
+            activeToken = "AMS_ArmorID_Green";
+        // Give/take as needed
+    }
+}
+Improvements:
+~40 lines vs ~100+ in ACS
+Property-based detection (not hardcoded class names)
+Automatic multi-player support
+StaticEventHandler pattern (no explicit calls needed)
+Only updates when needed (conditional logic)
+AMSFullScreenHUD: Programmatic Rendering
+Problem: SBARINFO declarative syntax, ~300 lines of nested conditionals, limited flexibility.
+ZScript solution:
+class AMSFullScreenHUD : DoomStatusBar
+{
+    override void Draw(int state, double TicFrac)
+    {
+        if (state == HUD_Fullscreen)
+        {
+            // Get CVars
+            int med = CVar.GetCVar("medtoggle", ...).GetInt();
+            int d64 = CVar.GetCVar("putoggle", ...).GetInt();
+            
+            // Determine icon programmatically
+            string icon = DetermineHealthIcon(med, d64, berserk);
+            
+            // Draw with custom scaling
+            DrawTexture(icon, position, scale: customScale);
+        }
+    }
+}
+Benefits:
+Object-oriented structure
+Full control over rendering
+Custom scaling per sprite
+~200 lines with MORE functionality than SBARINFO
+Modern GZDoom standard
+Architectural Lessons Learned
+Pattern Recognition and Adaptation
+Weapon routing → Pickup routing:
+Saw pattern in weapon states
+Realized it applied to pickups
+Adapted and implemented
+This is fundamental to learning programming - recognizing patterns across domains.
+Separation of Concerns
+v0-v2: Logic tangled (mode checking + value setting in same place)
+v3-alpha: Separated (router decides, workers execute)
+v5: Unified but clean (state memory pattern)
+Each version refined the separation until it became elegant.
+The DRY Principle
+v3-alpha: Workers hardcode all preset checks
+v4: Consolidated with Preset != X
+v5: Data-driven, no hardcoding
+Progression from explicit to implicit - let the data drive the logic.
+State Management
+v0-v4: Stateless (check every time, no memory)
+v5: Stateful (remember previous, detect changes)
+This is a fundamental CS concept - discovered through iteration.
+Event-Driven vs Continuous
+v0-v5 ACS: Continuous loops (checking every tic)
+v6 concept: Event-driven (only run when change occurs)
+Trade-off: Continuous is simpler, event-driven is more efficient.
+ZScript naturally supports event-driven (StaticEventHandler, Ticker overrides).
+Abstraction Levels
+DECORATE limitations:
+Jump to states (control flow)
+Call ACS (logic delegation)
+Spawn actors (object creation)
+ZScript capabilities:
+Variables and functions
+Conditional logic inline
+Object-oriented patterns
+Each language layer enables different abstractions.
+Knowing the limits helps choose the right tool.
+AI-Assisted Development
+What changed in v5:
+Not learning from scratch (had experience)
+AI provided scaffolding (generated patterns)
+I provided direction (domain knowledge)
+Iteration was conversational (mental debugging)
+Result: Hours instead of days for similar complexity.
+But only worked because of v1-v4 struggles - couldn't have AI-assisted v3-alpha without understanding the problem deeply first.
+The Meta-Pattern
+Each version refined one aspect:
+v0: Discovered real-time routing
+v1: Learned flow control and execution models
+v2-v3: Learned separation of concerns
+v3a: Discovered router + worker pattern
+v4: Learned DRY principle
+v5: Learned state memory pattern
+ZScript: Learned event-driven architecture
+Linear progression in understanding, even when development wasn't linear.
+Future Directions
+v5 Refinements (Post-Feb 28)
+Indexed getter:
+Consolidate 3 getters into 1 parameterized script
+Index 0-2 returns appropriate CVar
+Inspired by v6 concept
+Event-driven execution:
+Remove continuous loop
+Called by menu and DECORATE only
+More efficient (runs when needed, not every tic)
+Unified script:
+Merge engine + getters into one
+Index < 0 = engine, 0-2 = getter
+Single script for all logic
+v6 Concept: ZScript Engine
+Full ZScript implementation:
+Conditional spawning (no state jumps)
+Data module architecture
+Generic engine for any preset system
+Educational "simple version" of v5
+Status: Requires deeper ZScript knowledge - future exploration
+AMS-Lite vs AMS-Full
+Two parallel implementations:
+AMS-Lite (v6):
+Data-driven configuration
+Simple use cases
+Teaching tool
+Still forkable/modifiable
+AMS-Full (v5 refined):
+Complete control
+Edge case handling
+Production reference
+Deep technical example
+Both serve different learning needs - simple concepts vs complex implementation.
+Conclusion
+The architecture evolved from:
+Simple getters (v0)
+To router + workers (v3a)
+To unified state machine (v5)
+To event-driven modern system (ZScript)
+Each step built on previous understanding.
+The "failures" (v1-v2) were necessary - couldn't reach v5 without v3a, couldn't reach v3a without v1-v2 struggles.
+This is how software architecture develops - through iteration, failure, insight, and refinement.
+The code got better not because of planning, but because of doing.
+This architectural analysis represents the technical journey. The personal/learning journey is documented in learning-journey.md.
