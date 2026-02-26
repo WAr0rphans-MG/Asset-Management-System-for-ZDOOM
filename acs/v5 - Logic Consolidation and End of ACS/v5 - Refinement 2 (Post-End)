@@ -1,0 +1,56 @@
+#library "MEDSymbol"
+#include "zcommon.acs"
+
+// =====================================================
+// AMS - Asset Management System - Version 5 Refined 2
+// =====================================================
+
+// Global data
+int LastPreset = -1;  // Preset change detection memory
+
+script "SYMOptions" (int index)
+{
+
+	str Variables[3] = {"medtoggle", "stmtoggle", "brztoggle"};  // CVar names (shared)
+
+	if (index == -1)
+	{
+		int Preset = GetUserCVar(0, "pretoggle");
+		int Master = GetUserCVar(0, "asmtoggle");
+
+		if (LastPreset == -1)
+		{
+			LastPreset = Preset;
+		}
+
+		if (Master == 0 || (Master == 1 && Preset != LastPreset))
+		{
+			// Update all CVars to match preset value
+			for (int i = 0; i < 3; i++)
+			{
+				SetUserCVar(0, Variables[i], Preset);
+			}
+		}
+
+		/*
+		else if (Master == 1 && Preset == LastPreset)
+		{
+			// Do nothing - preserve user's custom selections
+		}
+		*/
+
+		LastPreset = Preset;
+	}
+	
+	else if (index >= 0 && index <= 2)
+	{
+		SetResultValue(GetUserCVar(0, Variables[index]));
+	}
+	
+	else
+    {
+        Log(s:"SYMOptions ERROR: Argument out of range (", d:index, s:")");
+        SetResultValue(0);  // Return safe default
+    }
+
+}
