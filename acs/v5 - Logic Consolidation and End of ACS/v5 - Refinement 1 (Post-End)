@@ -1,0 +1,71 @@
+#library "MEDSymbol"
+#include "zcommon.acs"
+
+// =====================================================
+// AMS - Asset Management System - Version 5 Refined
+// =====================================================
+
+// Global data
+int LastPreset = -1;  // Preset change detection memory
+str Variables[3] = {"medtoggle", "stmtoggle", "brztoggle"};  // CVar names (shared)
+
+script "SYMWorker" (void)
+{
+    int Preset = GetUserCVar(0, "pretoggle");
+    int Master = GetUserCVar(0, "asmtoggle");
+
+    // ---------------------------------------------------------
+    // 0. FIRST-TICK INITIALIZATION
+    // ---------------------------------------------------------
+
+    if (LastPreset == -1)
+    {
+        LastPreset = Preset;
+    }
+
+    // ---------------------------------------------------------
+    // 1. PRESET MODE (Master = 0) 
+    //    OR QUICK-SET (Master = 1 AND preset changed)
+    // ---------------------------------------------------------
+
+    if (Master == 0 || (Master == 1 && Preset != LastPreset))
+    {
+        // Update all CVars to match preset value
+        for (int i = 0; i < 3; i++)
+        {
+            SetUserCVar(0, Variables[i], Preset);
+        }
+    }
+    
+    // ---------------------------------------------------------
+    // 2. CUSTOM MODE (Master = 1 AND preset unchanged)
+    //    Explicitly doing nothing - custom values preserved
+    // ---------------------------------------------------------
+
+    /*
+    else if (Master == 1 && Preset == LastPreset)
+    {
+        // Do nothing - preserve user's custom selections
+    }
+    */
+
+    // ---------------------------------------------------------
+    // 3. UPDATE MEMORY FOR NEXT TICK
+    // ---------------------------------------------------------
+
+    LastPreset = Preset;
+
+    Delay(1);
+    Restart;
+}
+
+// ---------------------------------------------------------
+// INDEXED GETTER - Returns CVar value by index
+// Called by DECORATE: 0 = medtoggle, 1 = stmtoggle, 2 = brztoggle
+// ---------------------------------------------------------
+
+script "SYMOptions" (int index)
+
+{
+    SetResultValue(GetUserCVar(0, Variables[index]));
+}
