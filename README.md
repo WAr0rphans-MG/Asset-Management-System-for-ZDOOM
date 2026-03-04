@@ -209,42 +209,10 @@ The 3-year gap (October 2022 - December 2025) was dormancy - no code work on thi
 - Iterative refinement to ensure accuracy
 
 **This collaborative approach allowed me to:**
-- Document years of work in a condensed timeframe (meeting Feb 28 deadline)
+- Document years of work in a condensed timeframe
 - Gain new insights into my own learning process
 - Structure the repository for educational value
 - Be transparent about modern development workflows
-
----
-
-## What Makes This Valuable
-
-**Not a tutorial** - doesn't teach GZDoom step-by-step
-
-**Not a showcase** - shows failures alongside successes
-
-**Not just a portfolio** - documents the learning process
-
-**It's all three:**
-- **Tutorial value:** Others can learn from my mistakes and iterations
-- **Showcase value:** Demonstrates growth from zero to working systems
-- **Portfolio value:** Shows ability to learn, iterate, debug, and finish
-
-**The combination is rare** - most repositories show only the final polished result.
-
----
-
-## Future Work
-
-**Post-Feb 28 refinements:**
-- Add detailed comments to all code files
-- Document v2-v3 micro-iterations
-- Expand docs/ with architecture deep-dives
-- Add v5 optimization concepts (indexed getter, DECORATE overhead reduction)
-
-**Potential explorations:**
-- v6 concept (ZScript-based engine with data modules)
-- Backport v6 patterns to ACS (if possible)
-- Apply learned patterns to other GZDoom systems
 
 ---
 
@@ -265,24 +233,6 @@ The 3-year gap (October 2022 - December 2025) was dormancy - no code work on thi
 - Decompiled scripts from existing mods (primary learning method)
 
 ---
-
-## License
-
-GPL-3.0
-
-This matches GZDoom's license and ensures any derivative work remains open source, preserving the educational value for future modders.
-
----
-
-## A Note on Finishing
-
-**This breaks a 15-year pattern** of unfinished projects.
-
-**Why it worked this time:**
-- Clear deadline (February 28, 2026)
-- Defined scope (document what exists, don't build new features)
-- External accountability (Claude collaboration)
-- Honest approach (show failures, not just successes)
 
 **The code was done years ago. The documentation makes it real.**
 
